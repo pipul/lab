@@ -3,23 +3,17 @@
 
 #include <sys/types.h>
 
-typedef struct sds {
-	int len;
-	int free;
+typedef struct sdstm {
+	size_t len:31;
+	size_t free:1;
 	char buf[];
-};
+} sds;
 
-
-/**
- * if l = 0 , copy the whole char buffer.
- * if l > 0 , cope the specific length of char buffer.
- * if l < 0 , the wrong length.
- */
-
-char *sdsNew(const char *s, size_t l);
-void sdsFree(char *s);
+char *sdsNew(const char *src, size_t len);
+void sdsDel(char *s);
 char *sdsDup(const char *s);
-
-
 size_t sdsAvail(const char *s);
 size_t sdsLen(const char *s);
+
+
+#endif
