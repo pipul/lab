@@ -49,7 +49,7 @@ char *sdsDup(const char *src)
 }
 
 /*
- * Test Case for sds
+ * Test Case 1 for sds
  *
 
 int main(int argc, char **argv)
@@ -81,6 +81,41 @@ int main(int argc, char **argv)
 	for (i = 0;i < argc;i++) {
 		sdsDel(s[i]);
 	}
+	
+	return(0);
+}
+ */
+
+/*
+ * Test Case 2 for sds
+ *
+
+typedef struct {
+	char *key;
+	char *value;
+} te;
+
+int main(int argc, char **argv)
+{
+	if (argc != 2) {
+		printf("Usage:...\n");
+		return(0);
+	}
+	
+	te t;
+	t.key = sdsNew(argv[0],strlen(argv[0]));
+	t.value = sdsNew(argv[1],strlen(argv[1]));
+	
+	printf("te:\n");
+	printf("key:%s %d\n",t.key,sdsLen(t.key));
+	printf("value:%s %d\n",t.value,sdsLen(t.value));
+	
+	sdsDel(t.key);
+	sdsDel(t.value);
+	
+	printf("te:\n");
+	printf("key:%s %d\n",t.key,sdsLen(t.key));
+	printf("value:%s %d\n",t.value,sdsLen(t.value));
 	
 	return(0);
 }

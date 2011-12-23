@@ -3,7 +3,7 @@
 
 #include <sys/types.h>
 
-typedef struct sdstm {
+typedef struct {
 	size_t len:31;
 	size_t free:1;
 	char buf[];
