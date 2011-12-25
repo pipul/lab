@@ -10,41 +10,60 @@
  * with number of probes proportional to log(n) instead of n).
  */
 
-#define SKIPLIST_MAXLEVEL 32	/* Should be enough for 2^32 elements */
-#define SKIPLIST_P 0.25			/* Skiplist P = 1/4 */
+/* Should be enough for 2^32 elements */
+#define SKIPLIST_MAXLEVEL 32
 
-struct skipNodeLevel;
+/* Skiplist P = 1/4 */
+#define SKIPLIST_P 0.25
 
-typedef struct {
+typedef struct sN skipNode;
+typedef struct sNL skipNodeLink;
+typedef struct sL skipList;
+typedef struct slI skiplistIter;
+
+struct sN {
 	char *key;
 	char *value;
 	int height;
-	skipNodeLevel level[];
-} skipNode;
+	skipNodeLink *level;
+};
 
-typedef struct {
+struct sNL {
 	skipNode *prev;
 	skipNode *next;
-} skipNodeLevel;
+};
+
+struct slI {
+	int flags;
+	int height;
+	skipNode *curNode;
+};
 
 typedef int skipNodeCompare(skipNode *_n1, skipNode *_n2);
 
-typedef struct {
+struct sL {
 	skipNode *head;
 	skipNode *tail;
 	skipNodeCompare *cmp;
-} skipList;
+};
 
-#define nodePrev(_n,l) (_n->level[l]->prev)
-#define nodeNext(_n,l) (_n->level[l]->next)
-#define nodeHeight(_n) (_n->height)
-
-#define listHead(_l) (_l->head)
-#define listTail(_l) (_l->tail)
+int skiplistInsert(skipList *sl, skipNode *_n);
+int skiplistDelete(skipNode *_n);
 
 
-int skipListInsert(skipList *L, skipNode *_n);
-int skipListDelete(skipNode *_n);
+#define NEXTITER 1
+#define PREVITER 2
+
+skiplistIter *skiplistIterCreate(int flags, int height);
+skiplistIter *skiplistSetIter(skiplistIter *si, skipNode *sn);
+skipNode *skiplistIterator(skiplistIter *si);
+void skiplistIterFree(skiplistIter *si);
+
+
+
+
+
+
 
 
 
@@ -57,15 +76,25 @@ int skipListDelete(skipNode *_n);
  */
 
 #define MAX_KEYLEN 1024
+#define MAX_VALUELEN 2147483647 /* limit to sdsLen structure : 2^31-1 */
 
-typedef skipList mdbTable;
-typedef skipNode mdbRecord;
-typedef int mdbRecordCompare(mdbRecord *r1, mdbRecord *r2);
+typedef skipList mable;
+typedef skipNode mecord;
+typedef skipNodeLink mecordLink;
+typedef skiplistIter mableIter;
+typedef int mecordCompare(mecord *r1, mecord *r2);
 
-mdbTable *mdbTableCreate(mdbRecordCompare *recordCmp);
-int mdbTableFree(mdbTable *mt);
-int mdbTableInsert(mdbTable *mt, mdbRecord *mr);
-int mdbTableDelete(mdbTable *mr, mdbRecord *mr);
+
+mableIter *mableIterCreate(int flags, int height);
+mableIter *mableSetIter(mableIter *ti, mecord *mr);
+mecord *mableIterator(mableIter *ti);
+void mableIterFree(mableIter *ti);
+
+
+mable *mableCreate(mecordCompare *recordCmp);
+int mableFree(mable *mt);
+int mableInsert(mable *mt, mecord *mr);
+int mableDelete(mecord *mr);
 
 /* flags ----->
  * 
@@ -76,18 +105,18 @@ int mdbTableDelete(mdbTable *mr, mdbRecord *mr);
 
 #define LESSER_MAX 1
 #define EQUAL 2
-#define GREATER_MIN 4
+#define GREATE_MIN 4
 
-#define prevRecord(_n,l) (_n->level[l]->prev)
-#define nextRecord(_n,l) (_n->level[l]->next)
-#define recordLevel(_n) (_n->height)
+#define mableHead(_l) (_l->head)
+#define mableTail(_l) (_l->tail)
 
-mdbRecord *mdbTableFind(mdbTable *mr, const char *key, int flags);
+mecord *mableFind(mable *mr, const char *key, int flags);
 
 
-mdbRecord *mdbRecordCreate(const char *key);
-int mdbRecordSetValue(mdbRecord *mr, char *value);
-int mdbRecordFree(mdbRecord *mr);
+
+mecord *mecordCreate(const char *key);
+int mecordSetValue(mecord *mr, char *value);
+int mecordFree(mecord *mr);
 
 
 
