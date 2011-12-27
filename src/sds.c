@@ -3,49 +3,55 @@
 #include <string.h>
 #include "sds.h"
 
-char * sdsNew(const char *src, size_t len)
+sds sdsNew(const char *src, size_t len)
 {
-	sds *sN;
+	sdshdr *sh;
 
 	if (len <= 0)
 		len = (src == NULL) ? 0 : strlen(src);
 
-	if ((sN = malloc(sizeof(sds)+len+1)) == NULL)
+	if ((sh = malloc(sizeof(sdshdr)+len+1)) == NULL)
 		return(NULL);
-	sN->len = len;
-	sN->free = 0;
+	sh->len = len;
+	sh->free = 0;
 	if (len) {
 		if (src)
-			memcpy(sN->buf, src, len);
+			memcpy(sh->buf, src, len);
 		else
-			memset(sN->buf, 0, len);
+			memset(sh->buf, 0, len);
 	}
-	sN->buf[len] = '\0';
-	return (char *)sN->buf;
+	sh->buf[len] = '\0';
+	return (char *)sh->buf;
 }
 
-size_t sdsLen(const char *src)
+size_t sdsLen(const sds src)
 {
-	sds *str = (sds*)(src-(sizeof(sds)));
+	sdshdr *str = (sdshdr *)(src-(sizeof(sdshdr)));
 	return(str->len);
 }
 
-size_t sdsAvail(const char *src)
+size_t sdsAvail(const sds src)
 {
-	sds *str = (sds*)(src-(sizeof(sds)));
+	sdshdr *str = (sdshdr *)(src-(sizeof(sdshdr)));
 	return(str->free);
 }
 
-void sdsDel(char *src)
+void sdsDel(sds src)
 {
 	if (src == NULL)
 		return;
-	free(src-sizeof(sds));
+	free(src-sizeof(sdshdr));
 }
 
-char *sdsDup(const char *src)
+sds sdsDup(const sds src)
 {
 	return sdsNew(src,sdsLen(src));
+}
+
+sds sdsSet(sds s,int c, size_t n)
+{
+	size_t len = (n > sdsLen(s)) ? sdsLen(s) : n;
+	return memset(s,c,len);
 }
 
 /*
@@ -91,8 +97,8 @@ int main(int argc, char **argv)
  *
 
 typedef struct {
-	char *key;
-	char *value;
+	sds key;
+	sds value;
 } te;
 
 int main(int argc, char **argv)
@@ -119,5 +125,6 @@ int main(int argc, char **argv)
 	
 	return(0);
 }
+
  */
 

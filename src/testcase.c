@@ -1,4 +1,4 @@
-#include "skiplist.h"
+#include "mable.h"
 #include "sds.h"
 #include <string.h>
 #include <stdio.h>
@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 	mable *mb = mableCreate(NULL);
 	mableIter *mi;
 	mecord *cur;
-	char *str[argc];
+	sds str[argc];
 
 	if ((mi = mableIterCreate(NEXTITER,0)) == NULL)
 		return(-1);
@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 
 	printf("After insert:\n");
 	while (cur != mableTail(mb)) {
-		printf("key = %s : keylen = %d \n",cur->key,sdsLen(cur->key));
+		printf("key = %s : height = %d \n",cur->key,cur->height);
 		// if (cur->value)
 			// printf("value = %s : vallen = %d \n",cur->value,sdsLen(cur->value));
 		cur = mableIterator(mi);
@@ -40,15 +40,15 @@ int main(int argc, char **argv)
 	printf("Found elements:\n");
 	
 	for (i = 0;i < argc;i++) {
-		cur = mableFind(mb,str[i],LESSER_MAX);
-		if (cur)
-			printf("%s is found. ",cur->key);
 		cur = mableFind(mb,str[i],EQUAL);
 		if (cur)
-			printf("and prev mecord is %s,",cur->key);
+			printf("%s is found. ",cur->key);
+		cur = mableFind(mb,str[i],LESSER_MAX);
+		if (cur)
+			printf("prev is %s, ",cur->key);
 		cur = mableFind(mb,str[i],GREATE_MIN);
 		if (cur)
-			printf("%s is the next.\n",cur->key);
+			printf("next is %s\n",cur->key);
 	}
 	
 	cur = mableIterator(mableSetIter(mi,mableHead(mb)));
