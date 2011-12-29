@@ -2,7 +2,8 @@ Protocol
 --------
 
 Clients of coutune communicate with server through TCP connections.
-A given running coutune server listens on some (configurable) port; clients connect to that port, send commands to the server, read 
+A given running coutune server listens on some (configurable) port; 
+clients connect to that port, send commands to the server, read 
 responses, and eventually close the connection.
 
 There is no need to send any command to end the session. A client may
@@ -53,10 +54,14 @@ There are three types of commands.
 
 Storage commands (there are two: "set", "put") ask the server to store
  some data identified by a key. The client sends a command line, and 
- then a data block; after that the client expects one line of response, which will indicate success or faulure.
+ then a data block; after that the client expects one line of response, 
+ which will indicate success or faulure.
 
-Retrieval commands (only one: "get") ask the server to retrieve data corresponding to the key. The client sends a command line, after that 
-for this given key the server finds it sends to the client one response line with information about the item, the server finished with the "END" response line.
+Retrieval commands (only one: "get") ask the server to retrieve data 
+corresponding to the key. The client sends a command line, after that 
+for this given key the server finds it sends to the client one response 
+line with information about the item, the server finished with the "END" 
+response line.
 
 All other commands don't involve unstructured data. In all of them,
 the client sends one command line, and expects (depending on the
