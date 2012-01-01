@@ -12,36 +12,29 @@
 #define BLACK 1
 #define RED 0
 
-#define _rbtreeNodeClear(s) do {\
-	node->left = NULL;\
-	node->right = NULL;\
-	node->parent = NULL;\
-} while (0);
+typedef struct rN rbNode;
+typedef struct rT rbTree;
 
-#define _rbtreeIsEmpty(s) ((s)->root == &(s->NIL))
-
-typedef struct rbTree rbTree;
-typedef struct rbNode rbNode;
-typedef int rbNodeCompare(rbNode *n1, rbNode *n2);
-
-struct rbNode {
+struct rN {
 	long key;
 	rbNode *parent;
 	rbNode *right;
 	rbNode *left;
 	int color;
 	void *data;
-}
+};
 
-struct rbTree {
+typedef int rbNodeCompare(rbNode *, rbNode *);
+
+
+struct rT {
 	rbNode *root;
 	rbNode NIL;
-	size_t size;
 	rbNodeCompare *cmp;
-}
+};
 
 
-int rbtreeCreate(rbNodeCompare *);
+rbTree *rbtreeCreate(rbNodeCompare *);
 int rbtreeInsert(rbTree *, rbNode *);
 int rbtreeDelete(rbTree *, rbNode *);
 
