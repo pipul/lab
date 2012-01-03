@@ -18,24 +18,24 @@
 /* Skiplist P = 1/4 */
 #define SKIPLIST_P 0.25
 
-typedef struct sN skipNode;
-typedef struct sNL skipNodeLink;
-typedef struct sL skipList;
-typedef struct slI skiplistIter;
+typedef struct _skipNode skipNode;
+typedef struct _skipNodeLink skipNodeLink;
+typedef struct _skipList skipList;
+typedef struct _skiplistIter skiplistIter;
 
-struct sN {
+struct _skipNode {
 	sds key;
 	sds value;
 	int height;
 	skipNodeLink *level;
 };
 
-struct sNL {
+struct _skipNodeLink {
 	skipNode *prev;
 	skipNode *next;
 };
 
-struct slI {
+struct _skiplistIter {
 	int flags;
 	int height;
 	skipNode *curNode;
@@ -43,7 +43,7 @@ struct slI {
 
 typedef int skipNodeCompare(skipNode *_n1, skipNode *_n2);
 
-struct sL {
+struct _skipList {
 	skipNode *head;
 	skipNode *tail;
 	skipNodeCompare *cmp;
@@ -65,7 +65,7 @@ int skiplistDelete(skipNode *_n);
 /* The KV Core Module : memory key-value db ------->
  * 
  * Memory key-value db is base on skiplist witch described above.
- * coutune imprementation some a little succinct function interface
+ * coutune imprementate some a little succinct function interface
  *
  */
 

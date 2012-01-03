@@ -20,91 +20,91 @@
 
 #define _NULL(s) (&((s)->NIL))
 
-static int _rbNodeDefaultCompareFunction(rbNode *n1, rbNode *n2)
+static int _rbNodeDefaultCompareFunction(rbNode *m, rbNode *n)
 {
-	if (key(n1) < key(n2))
+	if (key(m) < key(n))
 		return(-1);
-	else if (key(n1) > key(n2))
+	else if (key(m) > key(n))
 		return(1);
 	else
 		return(0);
 }
 
-static int _rbtreeRotateLeft(rbTree *T, rbNode *x)
+static int _rbtreeRotateLeft(rbTree *T, rbNode *z)
 {
-	rbNode *y = right(x);
-	right(x) = left(y);
+	rbNode *y = right(z);
+	right(z) = left(y);
 	
 	if (left(y) != _NULL(T))
-		parent(left(y)) = x;
+		parent(left(y)) = z;
 	
-	parent(y) = parent(x);
-	if (parent(x) == _NULL(T)) {
+	parent(y) = parent(z);
+	if (parent(z) == _NULL(T)) {
 		T->root = y;
-	} else if (x == left(parent(x))) {
-		left(parent(x)) = y;
+	} else if (z == left(parent(z))) {
+		left(parent(z)) = y;
 	} else {
-		right(parent(x)) = y;
+		right(parent(z)) = y;
 	}
 	
-	left(y) = x;
-	parent(x) = y;
+	left(y) = z;
+	parent(z) = y;
 	return(0);
 }
 
-static int _rbtreeRotateRight(rbTree *T, rbNode *x)
+static int _rbtreeRotateRight(rbTree *T, rbNode *z)
 {
-	rbNode *y = left(x);
-	left(x) = right(y);
+	rbNode *y = left(z);
+	left(z) = right(y);
 	
 	if (right(y) != _NULL(T))
-		parent(right(y)) = x;
+		parent(right(y)) = z;
 	
-	parent(y) = parent(x);
-	if (parent(x) == _NULL(T)) {
+	parent(y) = parent(z);
+	if (parent(z) == _NULL(T)) {
 		T->root = y;
-	} else if (x == left(parent(x))) {
-		left(parent(x)) = y;
+	} else if (z == left(parent(z))) {
+		left(parent(z)) = y;
 	} else {
-		right(parent(x)) = y;
+		right(parent(z)) = y;
 	}
 	
-	right(y) = x;
-	parent(x) = y;
+	right(y) = z;
+	parent(z) = y;
 	
 	return(0);
 }
 
 
-rbNode* rbtreeMin(rbTree *T, rbNode *sT)
+rbNode* rbtreeMin(rbTree *T, rbNode *z)
 {
-	while(sT->left != _NULL(T)){
-		sT = sT->left;
+	while(z->left != _NULL(T)){
+		z = z->left;
 	}
 
-	return(sT);
+	return(z);
 }
 
-rbNode* rbtreeMax(rbTree *T, rbNode *sT)
+rbNode* rbtreeMax(rbTree *T, rbNode *z)
 {
-	while(sT->right != _NULL(T)){
-		sT = sT->right;
+	while(z->right != _NULL(T)){
+		z = z->right;
 	}
 
-	return(sT);
+	return(z);
 }
 
 
-static rbNode *_rbtreeSuccessor(rbTree *T, rbNode *x)
+static rbNode *_rbtreeSuccessor(rbTree *T, rbNode *z)
 {
 	rbNode *y;
 	
-	if (right(x) != _NULL(T)) {
-		y = rbtreeMin(T,right(x));
+	if (right(z) != _NULL(T)) {
+		y = rbtreeMin(T,right(z));
 	} else {
-		y = parent(x);
-		while ((y != _NULL(T)) && (x == right(y))) {
-			x = y;
+		y = parent(z);
+		while ((y != _NULL(T)) && (z == right(y))) {
+			z = y;
 			y = parent(y);
 		}
 	}
@@ -112,16 +112,16 @@ static rbNode *_rbtreeSuccessor(rbTree *T, rbNode *x)
 	return(y);
 }
 
-static rbNode *_rbtreePredecessor(rbTree *T,rbNode *x)
+static rbNode *_rbtreePredecessor(rbTree *T,rbNode *z)
 {
 	rbNode *y;
 	
-	if (left(x) != _NULL(T)) {
-		y = rbtreeMax(T,left(x));
+	if (left(z) != _NULL(T)) {
+		y = rbtreeMax(T,left(z));
 	} else {
-		y = parent(x);
-		while ((y != _NULL(T)) && (x == left(y))) {
-			x = y;
+		y = parent(z);
+		while ((y != _NULL(T)) && (z == left(y))) {
+			z = y;
 			y = parent(y);
 		}
 	}
@@ -129,42 +129,42 @@ static rbNode *_rbtreePredecessor(rbTree *T,rbNode *x)
 	return(y);
 }
 
-static int _rbtreeInsertFixup(rbTree *T, rbNode *x)
+static int _rbtreeInsertFixup(rbTree *T, rbNode *z)
 {
 	rbNode *y;
-	while (color(parent(x)) == RED) {
-		if (parent(x) == left(parent(parent(x)))) {
-			y = right(parent(parent(x)));
+	while (color(parent(z)) == RED) {
+		if (parent(z) == left(parent(parent(z)))) {
+			y = right(parent(parent(z)));
 			if (color(y) == RED) {
-				color(parent(x)) = BLACK;
+				color(parent(z)) = BLACK;
 				color(y) = BLACK;
-				color(parent(parent(x))) = RED;
-				x = parent(parent(x));
+				color(parent(parent(z))) = RED;
+				z = parent(parent(z));
 			} else {
-				if (x == right(parent(x))) {
-					x = parent(x);
-					_rbtreeRotateLeft(T,x);
+				if (z == right(parent(z))) {
+					z = parent(z);
+					_rbtreeRotateLeft(T,z);
 				} else {
-					color(parent(x)) = BLACK;
-					color(parent(parent(x))) = RED;
-					_rbtreeRotateRight(T,parent(parent(x)));
+					color(parent(z)) = BLACK;
+					color(parent(parent(z))) = RED;
+					_rbtreeRotateRight(T,parent(parent(z)));
 				}
 			}
 		} else {
-			y = left(parent(parent(x)));
+			y = left(parent(parent(z)));
 			if (color(y) == RED) {
-				color(parent(x)) = BLACK;
+				color(parent(z)) = BLACK;
 				color(y) = BLACK;
-				color(parent(parent(x))) = RED;
-				x = parent(parent(x));
+				color(parent(parent(z))) = RED;
+				z = parent(parent(z));
 			} else {
-				if (x == left(parent(x))) {
-					x = parent(x);
-					_rbtreeRotateRight(T,x);
+				if (z == left(parent(z))) {
+					z = parent(z);
+					_rbtreeRotateRight(T,z);
 				} else {
-					color(parent(x)) = BLACK;
-					color(parent(parent(x))) = RED;
-					_rbtreeRotateLeft(T,parent(parent(x)));
+					color(parent(z)) = BLACK;
+					color(parent(parent(z))) = RED;
+					_rbtreeRotateLeft(T,parent(parent(z)));
 				}
 			}
 		}
@@ -175,61 +175,61 @@ static int _rbtreeInsertFixup(rbTree *T, rbNode *x)
 }
 		
 
-static int _rbtreeDeleteFixup(rbTree *T, rbNode *x)		
+static int _rbtreeDeleteFixup(rbTree *T, rbNode *z)		
 {
 	rbNode *w;
 
-	while (x != _NULL(T) && color(x) == BLACK) {
-		if (x == left(parent(x))) {
-			w = right(parent(x));
+	while (z != _NULL(T) && color(z) == BLACK) {
+		if (z == left(parent(z))) {
+			w = right(parent(z));
 			if (color(w) == RED) {
 				color(w) = BLACK;
-				color(parent(x)) = RED;
-				_rbtreeRotateLeft(T,parent(x));
-				w = right(parent(x));
+				color(parent(z)) = RED;
+				_rbtreeRotateLeft(T,parent(z));
+				w = right(parent(z));
 			}
 			if (color(left(w)) == BLACK && color(right(w)) == BLACK) {
 				color(w) = RED;
-				w = right(parent(x));
+				w = right(parent(z));
 			} else if (color(right(w)) == BLACK) {
 				color(left(w)) = BLACK;
 				color(w) = RED;
 				_rbtreeRotateRight(T,w);
-				w = right(parent(x));
+				w = right(parent(z));
 			} else {
-				color(w) = color(parent(x));
-				color(parent(x)) = BLACK;
+				color(w) = color(parent(z));
+				color(parent(z)) = BLACK;
 				color(right(w)) = BLACK;
-				_rbtreeRotateLeft(T,parent(x));
-				x=T->root;
+				_rbtreeRotateLeft(T,parent(z));
+				z=T->root;
 			}
 		} else {
-			w = left(parent(x));
+			w = left(parent(z));
 			if (color(w) == RED) {
 				color(w) = BLACK;
-				color(parent(x)) = RED;
-				_rbtreeRotateRight(T,parent(x));
-				w = left(parent(x));
+				color(parent(z)) = RED;
+				_rbtreeRotateRight(T,parent(z));
+				w = left(parent(z));
 			}
 			if (color(right(w)) == BLACK && color(left(w)) == BLACK){
 				color(w) = RED;
-				w = left(parent(x));
+				w = left(parent(z));
 			} else if (color(left(w)) == BLACK) {
 				color(right(w)) = BLACK;
 				color(w) = RED;
 				_rbtreeRotateLeft(T,w);
-				w = left(parent(x));
+				w = left(parent(z));
 			} else {
-				color(w) = color(parent(x));
-				color(parent(x)) = BLACK;
+				color(w) = color(parent(z));
+				color(parent(z)) = BLACK;
 				color(left(w)) = BLACK;
-				_rbtreeRotateRight(T,parent(x));
-				x = T->root;
+				_rbtreeRotateRight(T,parent(z));
+				z = T->root;
 			}
 		}
 	}
 
-	color(x) = BLACK;
+	color(z) = BLACK;
 
 	return(0);
 }
@@ -304,7 +304,7 @@ int rbtreeDelete(rbTree *T, rbNode *z)
 	
 	if (y != z){
 		key(z) = key(y);
-		data(z) = data(y);
+		value(z) = value(y);
 	}
 
 	if (color(y) == BLACK)
@@ -355,36 +355,36 @@ rbNode *rbnodeCreate()
 	n->right = NULL;
 	n->left = NULL;
 	n->color = RED;
-	n->data = NULL;
+	n->value = NULL;
 	
 	return(n);
 }
 
-int rbnodeSetkey(rbNode *n, long k)
+int rbnodeSetkey(rbNode *z, long key)
 {
-	n->key = k;
+	z->key = key;
 	return(0);
 }
 
-int rbnodeSetdata(rbNode *n, void *data)
+int rbnodeSetvalue(rbNode *z, void *value)
 {
-	n->data = data;
+	z->value = value;
 	return(0);
 }
 
-void rbnodeDestroy(rbNode *n)
+void rbnodeDestroy(rbNode *z)
 {
-	free(n->data);
-	free(n);
+	free(z->value);
+	free(z);
 }
 
-rbNode *rbtreeSearch(rbTree *T, long k)
+rbNode *rbtreeSearch(rbTree *T, long key)
 {
 	rbNode *x = T->root;
 	rbNode tmp;
 	int cmpRes;
 	
-	tmp.key = k;
+	tmp.key = key;
 
 	while (x != _NULL(T)) {
 		cmpRes = T->cmp(x,&tmp);
@@ -403,13 +403,13 @@ rbNode *rbtreeSearch(rbTree *T, long k)
 		return(NULL);
 }
 
-rbNode *rbtreeLookup(rbTree *T, long k)
+rbNode *rbtreeLookup(rbTree *T, long key)
 {
 	rbNode *x=T->root,*y;
 	rbNode tmp;
 	int cmpRes;
 	
-	tmp.key = k;
+	tmp.key = key;
 	
 	while (x != _NULL(T)) {
 		y = x;
@@ -456,6 +456,39 @@ rbNode *rbtreeLookup(rbTree *T, long k)
  * ghost@aladdin.com
  *
  */
+
+
+
+typedef unsigned char md5_byte_t; /* 8-bit byte */
+typedef unsigned int md5_word_t; /* 32-bit word */
+
+/* Define the state of the MD5 Algorithm. */
+typedef struct md5_state_s {
+    md5_word_t count[2];	/* message length in bits, lsw first */
+    md5_word_t abcd[4];		/* digest buffer */
+    md5_byte_t buf[64];		/* accumulate block */
+} md5_state_t;
+
+/* Initialize the algorithm. */
+
+void md5_init(md5_state_t *pms);
+
+/* Append a string to the message. */
+
+void md5_append(md5_state_t *pms, const md5_byte_t *data, int nbytes);
+
+/* Finish the message and return the digest. */
+
+void md5_finish(md5_state_t *pms, md5_byte_t digest[16]);
+
+/* 
+ * the default hash function, using md5 algorithm
+ */
+long _conDefaultHash(const char *instr);
+
+
+
+
 
 
 #undef BYTE_ORDER	/* 1 = big-endian, -1 = little-endian, 0 = unknown */
@@ -845,24 +878,24 @@ void *clusterDestroy(cluster *c)
 #define REPLICA_MAXLEN 3	/* replicas number <= 1k (0~999) */
 #define REPLICAS_MAX 999	/* the max number of replicas */
 
-int clusterAddServer(cluster *c, const char *host, int replicas)
+int clusterAddServer(cluster *c, const char *serv, int replicas)
 {
 	int i;
-	long hostkey;
-	char *hostdata; /* ip address */
-	char hostBuf[IPNAME_MAXLEN + REPLICA_MAXLEN + 1];
+	long servkey;
+	char *servdata; /* ip address */
+	char servBuf[IPNAME_MAXLEN + REPLICA_MAXLEN + 1];
 	rbNode *server;
 	
 	for (i = 0; i < replicas; i++) {
-		snprintf(hostBuf, 
-			IPNAME_MAXLEN + REPLICA_MAXLEN, "%s-%03d", host, i);
-		hostkey = c->hash(hostBuf);
-		if (rbtreeSearch(c->svlist,hostkey) == NULL) {
+		snprintf(servBuf, 
+			IPNAME_MAXLEN + REPLICA_MAXLEN, "%s-%03d", serv, i);
+		servkey = c->hash(servBuf);
+		if (rbtreeSearch(c->svlist,servkey) == NULL) {
 			server = rbnodeCreate();
-			rbnodeSetkey(server,hostkey);
-			hostdata = malloc(IPNAME_MAXLEN + 1);
-			strncpy(hostdata, host, IPNAME_MAXLEN);
-			rbnodeSetdata(server,hostdata);
+			rbnodeSetkey(server,servkey);
+			servdata = malloc(IPNAME_MAXLEN + 1);
+			strncpy(servdata, serv, IPNAME_MAXLEN);
+			rbnodeSetdata(server,servdata);
 			
 			rbtreeInsert(c->svlist,server);
 			c->vnodes++;
@@ -874,18 +907,18 @@ int clusterAddServer(cluster *c, const char *host, int replicas)
 	return(0);
 }
 
-int clusterDelServer(cluster *c, const char *host)
+int clusterDelServer(cluster *c, const char *serv)
 {
 	int i = 0;
-	long hostkey;
-	char hostBuf[IPNAME_MAXLEN + REPLICA_MAXLEN + 1];
+	long servkey;
+	char servBuf[IPNAME_MAXLEN + REPLICA_MAXLEN + 1];
 	rbNode *server;
 	
 	do {
-		snprintf(hostBuf,
-			IPNAME_MAXLEN + REPLICA_MAXLEN, "%s-%03d", host, i);
-		hostkey = c->hash(hostBuf);
-		if ((server = rbtreeSearch(c->svlist,hostkey)) != NULL) {
+		snprintf(servBuf,
+			IPNAME_MAXLEN + REPLICA_MAXLEN, "%s-%03d", serv, i);
+		servkey = c->hash(servBuf);
+		if ((server = rbtreeSearch(c->svlist,servkey)) != NULL) {
 			rbtreeDelete(c->svlist,server);
 			rbnodeDestroy(server);
 			i++;
@@ -895,6 +928,49 @@ int clusterDelServer(cluster *c, const char *host)
 	} while (i < REPLICAS_MAX);
 	
 	return(0);
+
+}
+
+int clusterSetServer(cluster *c, const char *serv, int replicas)
+{
+	int i;
+	long servkey;
+	char *servdata; /* ip address */
+	char servBuf[IPNAME_MAXLEN + REPLICA_MAXLEN + 1];
+	rbNode *server;
+	
+	for (i = 0; i < replicas; i++) {
+		snprintf(servBuf, 
+			IPNAME_MAXLEN + REPLICA_MAXLEN, "%s-%03d", serv, i);
+		servkey = c->hash(servBuf);
+		if (rbtreeSearch(c->svlist,servkey) == NULL) {
+			server = rbnodeCreate();
+			rbnodeSetkey(server,servkey);
+			servdata = malloc(IPNAME_MAXLEN + 1);
+			strncpy(servdata, serv, IPNAME_MAXLEN);
+			rbnodeSetdata(server,servdata);
+			
+			rbtreeInsert(c->svlist,server);
+			c->vnodes++;
+		}
+	}
+	
+	do {
+		snprintf(servBuf,
+			IPNAME_MAXLEN + REPLICA_MAXLEN, "%s-%03d", serv, i);
+		servkey = c->hash(servBuf);
+		if ((server = rbtreeSearch(c->svlist,servkey)) != NULL) {
+			rbtreeDelete(c->svlist,server);
+			rbnodeDestroy(server);
+			i++;
+		} else {
+			break;
+		}
+	} while (i < REPLICAS_MAX);
+
+	
+	return(0);
+
 
 }
 
@@ -920,6 +996,17 @@ const char *clusterGetServer(cluster *c, const char *cli)
  
 int main(int argc, char **argv)
 {
+	int i;
+	cluster *c = clusterCreate();
+	printf("Insert server node:\n");
+	
+	for (i = 1; i < argc-2; i++) {
+		clusterAddServer(c,argv[i],200);
+	}
+	printf("Get the cache IP:\n");
+	printf("Cli:%s --> CacheIP:%s\n",argv[argc-2],clusterGetServer(c,argv[argc-2]));
+	printf("Cli:%s --> CacheIP:%s\n",argv[argc-1],clusterGetServer(c,argv[argc-1]));
+	
 	return(0);
 }	
 	

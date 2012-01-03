@@ -13,7 +13,6 @@ sds sdsNew(const char *src, size_t len)
 	if ((sh = malloc(sizeof(sdshdr)+len+1)) == NULL)
 		return(NULL);
 	sh->len = len;
-	sh->free = 0;
 	if (len) {
 		if (src)
 			memcpy(sh->buf, src, len);
@@ -30,11 +29,6 @@ size_t sdsLen(const sds src)
 	return(str->len);
 }
 
-size_t sdsAvail(const sds src)
-{
-	sdshdr *str = (sdshdr *)(src-(sizeof(sdshdr)));
-	return(str->free);
-}
 
 void sdsDel(sds src)
 {
