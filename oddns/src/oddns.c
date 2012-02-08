@@ -10,6 +10,7 @@
 
 
 #define BUFSIZE 1024
+#define LOGFILE "oddns.log"
 
 int getPrimaryIp(char *ipv4, size_t ip_len)
 {
@@ -44,7 +45,7 @@ int getPrimaryIp(char *ipv4, size_t ip_len)
 	
 	
 
-int getpubipv4(char *ipv4)
+int getexternalIp(char *ipv4)
 {
 	int n;
 	struct addrinfo hints, *res, *ressave;
@@ -58,12 +59,13 @@ int getpubipv4(char *ipv4)
 	ressave = res;
 
 	do {
-		printf("%s\n",inet_ntoa(((struct sockaddr_in *)(res->ai_addr))->sin_addr));
+		sprintf(ipv4,"%s\n",inet_ntoa(((struct sockaddr_in *)(res->ai_addr))->sin_addr));
 	} while ((res = res->ai_next) != NULL);
 
 	if (res == NULL)
 		return(-1);
 	freeaddrinfo(ressave);
+	return(0);
 }
 
 
@@ -100,41 +102,70 @@ int tcpConnect(const char *host, const char *serv)
 }
 
 
-int main(int argc, char **argv)
+
+int updateDns(char *domain, char *ipv4)
 {
 
-	char UA[BUFSIZE] = "";
-	char hostname[BUFSIZE] = "pipulorg.vicp.net";
-	char recdata[BUFSIZE] = "";
-	char ipv4new[BUFSIZE] = "", ipv4old[BUFSIZE] = "";
-	
-	
 	int sockfd;
+	FILE *logfp;
+	int rd;
+
+	char UA[BUFSIZE] = "";
+	char recdata[BUFSIZE] = "";
+
+	if ((logfp = fopen(LOGFILE,"a+")) == NULL)
+		return(-1);
 	
-	getPrimaryIp(recdata,BUFSIZE);
-	printf("%s\n",recdata);
-	exit(0);
+	while ((sockfd = tcpConnect("ddns.oray.com","80")) <= 0) {
+		fputs("Can't connect to this server:ddns.oray.com:80\n",
+		logfp);
+		sleep(60);
+	}
 
-	if (argc != 1)
-		/* error for oddns server start! */
-		exit(0);
-	
-	/* Get the username from config file. */
-	// getOption(username,"USERNAME");
+	strcpy(UA,"GET /ph/update?hostname=");
+	strcat(UA,domain);
+	strcat(UA,"&myip=");
+	strcat(UA,ipv4);
+	strcat(UA," HTTP/1.0\r\n");
+	strcat(UA,"Host: ddns.oray.com\r\n");
+	strcat(UA,"Connection: close\r\n");
+	strcat(UA,"Accept-Charset: ISO-8859-1,UTF-8;q=0.7,*;q=0.7\r\n");
+	strcat(UA,"Cache-Control: no-cache\r\n");
+	strcat(UA,"Authorization: Basic cGlwdWxvcmc6YXNkZmFzZGY=\r\n");
+	strcat(UA,"User-Agent: Oray\r\n\r\n");	
+	strcat(UA,"Accept-Language: de,en;q=0.7,en-us;q=0.3\r\n\r\n");
 
-	/* Get the password from config file. */
-	// getOption(password,"PASSWORD");
+	if ((rd = write(sockfd,UA,strlen(UA))) != strlen(UA)) {
+		close(sockfd);
+		fclose(logfp);
+		return(-1);
+	}
 
-	/* Get the hostname from foncig file. */
-	// getOptino(hostname,"HOSTNAME");
+	while ((rd = read(sockfd,recdata,BUFSIZE)) <= 0);
+	recdata[rd] = '\0';
 
-CHECK:
-	/*
-	 * First:
-	 * Get the pubblic netword ipaddress.
-	 * METHON: GET ORAY
-	 *
-	 */
+	close(sockfd);
+	fclose(logfp);
+	return(0);
+}
+
+int getipv4(char *ipv4)
+{
+	int sockfd;
+	FILE *logfp;
+	int rd;
+
+	char UA[BUFSIZE] = "";
+	char recdata[BUFSIZE] = "";
+
+	if ((logfp = fopen(LOGFILE,"a+")) == NULL)
+		return(-1);
+
+	while ((sockfd = tcpConnect("ddns.oray.com","80")) <= 0) {
+		fputs("Can't connect to this server:oddns.oray.com:80\n",
+		logfp);
+		sleep(60);
+	}
 
 	strcpy(UA,"GET /checkip HTTP/1.1\r\n");
 	strcat(UA,"Host: ddns.oray.com\r\n");
@@ -143,73 +174,62 @@ CHECK:
 	strcat(UA,"Cache-Control: no-cache\r\n");
 	strcat(UA,"Accept-Language: de,en;q=0.7,en-us;q=0.3\r\n\r\n");
 
-	if ((sockfd = tcpConnect("ddns.oray.com","80")) <= 0) {
-		fprintf(stderr,
-			"Can't connect to the server:ddns.oray.com:80\n");
-		exit(0);
+	if ((rd = write(sockfd,UA,strlen(UA))) != strlen(UA)) {
+		close(sockfd);
+		fclose(logfp);
+		return(-1);
 	}
 
-	int rd;
-	if ((rd = write(sockfd,UA,strlen(UA))) != strlen(UA)) {
-		fprintf(stderr,"error for sending the checkip request.\n");
-		exit(0);
-	}
-	
 	while ((rd = read(sockfd,recdata,BUFSIZE)) <= 0);
 	recdata[rd] = '\0';
+	close(sockfd);
 
 	/* Pick up the really publicNetword ipaddress. */
-	strncpy(ipv4new,strstr(recdata,"Address: ") + 9,
+	strncpy(ipv4,strstr(recdata,
+		"Address: ") + 9,
 		strstr(recdata,"</body>")-strstr(recdata,"Address: ") - 9);
 
 	close(sockfd);
+	fclose(logfp);
+	return(0);
+}
+
+
+
+int main(int argc, char **argv)
+{
+
+	char domain[BUFSIZE] = "pipulorg.vicp.net";
+	char ipv4new[BUFSIZE] = "", ipv4old[BUFSIZE] = "";
+
+	if (argc != 1)
+		/* error for oddns server start! */
+		exit(0);
+	
+CHECK:
+	/*
+	 * First:
+	 * Get the pubblic netword ipaddress.
+	 * METHON: GET ORAY
+	 *
+	 */
+
+	while (getipv4(ipv4new) == -1);
 
 
 	/*
 	 * Second:
-	 * Update the hostname's A record if the server
+	 * Update the domain's A record if the server
 	 * ipaddress was change.
 	 *
 	 */
 	
 	if (strcmp(ipv4new,ipv4old) != 0) {
-
-		if ((sockfd = tcpConnect("ddns.oray.com","80")) <= 0) {
-			fprintf(stderr,
-			"Can't connect to the server:ddns.oray.com:80\n");
-			exit(0);
-		}
-
-		strcpy(UA,"GET /ph/update?hostname=");
-		strcat(UA,hostname);
-		strcat(UA,"&myip=");
-		strcat(UA,ipv4new);
-		strcat(UA," HTTP/1.0\r\n");
-		strcat(UA,"Host: ddns.oray.com\r\n");
-		strcat(UA,"Connection: close\r\n");
-		strcat(UA,"Accept-Charset: ISO-8859-1,UTF-8;q=0.7,*;q=0.7\r\n");
-		strcat(UA,"Cache-Control: no-cache\r\n");
-		strcat(UA,"Authorization: Basic cGlwdWxvcmc6YXNkZmFzZGY=\r\n");
-		strcat(UA,"User-Agent: Oray\r\n\r\n");	
-		strcat(UA,"Accept-Language: de,en;q=0.7,en-us;q=0.3\r\n\r\n");
-	
-		if ((rd = write(sockfd,UA,strlen(UA))) != strlen(UA)) {
-			fprintf(stderr,
-				"error for sending the updateip request.\n");
-			exit(0);
-		}
-
-		while ((rd = read(sockfd,recdata,BUFSIZE)) <= 0);
-		recdata[rd] = '\0';
-		fprintf(stdout,recdata);
-		
+		while (updateDns(domain,ipv4new) == 1);
 		strcpy(ipv4old,ipv4new);
-		close(sockfd);
-
 	}
 
-	sleep(60000);
-
+	sleep(60);
 	goto CHECK;
 
 	return(0);
