@@ -410,7 +410,7 @@ rbNode *rbtreeLookup(rbTree *T, long key)
 	int cmpRes;
 	
 	tmp.key = key;
-	
+
 	while (x != _NULL(T)) {
 		y = x;
 		cmpRes = T->cmp(x,&tmp);
@@ -425,10 +425,14 @@ rbNode *rbtreeLookup(rbTree *T, long key)
 
 	if (x != _NULL(T))
 		return(x);
-	else if (y != _NULL(T))
-		return(y);
-	else
-		return(NULL);
+	else {
+		if (cmpRes < 0)
+			return(_rbtreeSuccessor(T,y));
+		else
+			return(y);
+	}
+	
+	return(NULL);
 }
 
 
@@ -895,7 +899,7 @@ int clusterAddServer(cluster *c, const char *serv, int replicas)
 			rbnodeSetkey(server,servkey);
 			servdata = malloc(IPNAME_MAXLEN + 1);
 			strncpy(servdata, serv, IPNAME_MAXLEN);
-			rbnodeSetdata(server,servdata);
+			rbnodeSetvalue(server,servdata);
 			
 			rbtreeInsert(c->svlist,server);
 			c->vnodes++;
@@ -948,7 +952,7 @@ int clusterSetServer(cluster *c, const char *serv, int replicas)
 			rbnodeSetkey(server,servkey);
 			servdata = malloc(IPNAME_MAXLEN + 1);
 			strncpy(servdata, serv, IPNAME_MAXLEN);
-			rbnodeSetdata(server,servdata);
+			rbnodeSetvalue(server,servdata);
 			
 			rbtreeInsert(c->svlist,server);
 			c->vnodes++;
@@ -983,7 +987,7 @@ const char *clusterGetServer(cluster *c, const char *cli)
 	snprintf(cliBuf, IPNAME_MAXLEN, "%s", cli);
 	clikey = c->hash(cliBuf);
 	if ((server = rbtreeLookup(c->svlist,clikey)) != NULL) {
-		return(server->data);
+		return(server->value);
 	} else {
 		return(NULL);
 	}
