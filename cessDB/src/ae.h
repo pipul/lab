@@ -28,7 +28,7 @@ typedef struct eloop {
 	int efd;
 	int stop;
 	efile_t ev[AE_SETSIZE];
-	efire_t rd[AE_SETSIZE];
+	efile_t rd[AE_SETSIZE];
 } EL;
 
 /* prototypes */
