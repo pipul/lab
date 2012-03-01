@@ -108,8 +108,10 @@ static rbNode *_rbtreeSuccessor(rbTree *T, rbNode *z)
 			y = parent(y);
 		}
 	}
-	
-	return(y);
+	if (y != _NULL(T))
+		return(y);
+	else
+		return(rbtreeMin(T,T->root));
 }
 
 static rbNode *_rbtreePredecessor(rbTree *T,rbNode *z)
