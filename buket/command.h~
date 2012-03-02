@@ -1,0 +1,16 @@
+#ifndef __COMMAND_H_
+#define __COMMAND_H_
+
+
+
+int parseGET(char *src, char *dest);
+
+
+
+
+
+
+
+
+
+#endif

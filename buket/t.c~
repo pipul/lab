@@ -1,0 +1,21 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <stdlib.h>
+
+int main()
+{
+	int fd;
+	int n;
+	
+	if ((fd = open("888",O_RDONLY)) < 0) {
+		printf("1\n");
+		exit(0);
+	}
+	
+	lseek(fd,10,SEEK_SET);
+	
+	if ((n = write(fd,"bbb",3)) != 3)
+		printf("r error\n");
+	
+	exit(0);
+}
