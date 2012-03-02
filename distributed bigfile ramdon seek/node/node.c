@@ -1,5 +1,7 @@
 #include "net.h"
 #include "ae.h"
+#include "config.h"
+#include "debug.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -10,8 +12,10 @@
 #include <sys/socket.h>
 
 #define DB_PATH "db/"
+#define DB_CONF "node.conf"
 #define MAXLINE 1024
 typedef struct sockaddr SA;
+
 
 void sendRequesData(int listenfd, void *argv, int mask)
 {
@@ -31,19 +35,22 @@ void sendRequesData(int listenfd, void *argv, int mask)
 	cliaddr_len = sizeof(cliaddr);
 	clientfd = accept(listenfd,(SA *)&cliaddr,&cliaddr_len);
 	
-	strcpy(RQFILE,DB_PATH);
+	strcpy(RQFILE,getOption((CF *)argv,"ServerPath"));
 	rqfptr = RQFILE + strlen(RQFILE);
 
 	if ((n = read(clientfd,recvline,MAXLINE)) > 0) {
 		ptr = strstr(recvline,"GET ");
-		strncpy(rqfptr,ptr+4,strstr(ptr,"\r\n")-ptr-4);
+		snprintf(rqfptr,strstr(ptr,"\r\n")-ptr-3,"%s",ptr+4);
+		// strncpy(rqfptr,ptr+4,strstr(ptr,"\r\n")-ptr-4);
 
 		ptr = strstr(recvline,"OFFSET ");
-		strncpy(BUFF,ptr+7,strstr(ptr,"\r\n")-ptr-7);
+		snprintf(BUFF,strstr(ptr,"\r\n")-ptr-6,"%s",ptr+7);
+		// strncpy(BUFF,ptr+7,strstr(ptr,"\r\n")-ptr-7);
 		offset = atoi(BUFF);
 		
 		ptr = strstr(recvline,"SIZE ");
-		strncpy(BUFF,ptr+5,strstr(ptr,"\r\n")-ptr-5);
+		snprintf(BUFF,strstr(ptr,"\r\n")-ptr-4,"%s",ptr+5);
+		// strncpy(BUFF,ptr+5,strstr(ptr,"\r\n")-ptr-5);
 		size = atoi(BUFF);
 		
 		stat(RQFILE,&rqstat);
@@ -78,28 +85,60 @@ void sendRequesData(int listenfd, void *argv, int mask)
 
 int main(int argc, char **argv)
 {
-	int listenfd, connfd;
+	int listenfd, connfd, n;
 	EL *el;
+	CF *conf;
+	char *opName[] = {
+		"Listen",
+		"ServerPath",
+		"ClusterManagerName",
+		"ClusterManagerPort"};
+	char *ptr;
 	
 	socklen_t addrlen;
 	char BUFF[MAXLINE];
 	struct sockaddr_storage cliaddr;
 	
-	if (argc == 2)
-		listenfd = tcpListen(NULL,argv[1],&addrlen);
-	else if (argc == 3)
-		listenfd = tcpListen(argv[1],argv[2],&addrlen);
-	else {
-		printf("usage:node [HOST] <PORT>\n");
-		exit(0);
-	}
+	if (argc > 2)
+		err_quit("usage: node [path to config file] <--help>\n");
 	
-	if ((el = el_open()) == NULL) {
-		printf("node error for creating epoll.\n");
-		exit(0);
-	}
+	if (argc == 2 && strcmp(argv[1],"--help") != 0)
+		conf = cfileInit(argv[1],opName);
+	else if (argc == 1)
+		conf = cfileInit(DB_CONF,opName);
 
-	el_addFileEvent(el,listenfd,AE_READABLE,sendRequesData,NULL);
+	connfd = tcpConnect(
+		getOption(conf,"ClusterManagerName"),
+		getOption(conf,"ClusterManagerPort"));
+	
+	if (connfd < 0)
+		err_quit("error for connecting cluster manager.\n");
+
+	strcpy(BUFF,"REG ");
+	getExternalIp(BUFF + 4);
+	strcat(BUFF,"\r\n");
+	
+	write(connfd,BUFF,strlen(BUFF));
+	
+	if ((n = read(connfd,BUFF,MAXLINE)) > 0) {
+		BUFF[n] = '\0';
+		if (strcmp(BUFF,"REG ERR\r\n") == 0)
+			err_quit("error for registering node in cluster");
+	} else
+		err_quit("error for registering node in cluster");
+
+	close(connfd);
+
+	if ((ptr = getOption(conf,"Listen")) != NULL)
+		listenfd = 
+		tcpListen(getOption(conf,"ServerName"),ptr,&addrlen);
+	else
+		err_quit("error for opening listen port.\n");
+	
+	if ((el = el_open()) == NULL)
+		err_quit("node error for creating epoll.\n");
+
+	el_addFileEvent(el,listenfd,AE_READABLE,sendRequesData,(void *)conf);
 	
 	el_start(el,AE_BLOCK);
 
