@@ -14,10 +14,8 @@
 BFILE *b_open(const char *host, const char *port, const char *file)
 {
 	int sockfd,len,n;
-	char requestHeader[MAXLINE];
-	char nodeHost[MAXLINE];
-	char nodePort[MAXLINE];
-	char recvline[MAXLINE];
+	char requestHeader[MAXLINE],filesize[MAXLINE];
+	char nodeHost[MAXLINE],nodePort[MAXLINE],recvline[MAXLINE];
 	char *ptr;
 	BFILE *fp;
 
@@ -48,6 +46,28 @@ BFILE *b_open(const char *host, const char *port, const char *file)
 	
 	if ((sockfd = tcpConnect(nodeHost,nodePort)) < 0)
 		return(NULL);
+	
+	snprintf(requestHeader,MAXLINE,"FILE %s\r\n");
+	len = strlen(requestHeader);
+	if ((n = write(sockfd,requestHeader,len)) != len) {
+		close(sockfd);
+		return(NULL);
+	}
+	
+	if ((n = read(sockfd,recvline,MAXLINE)) > 0)
+		recvline[n] = '\0';
+	else {
+		close(sockfd);
+		return(NULL);
+	}
+	
+	if ((ptr = strstr(recvline,"FILE OK\r\n")) == NULL) {
+		close(sockfd);
+		return(NULL);
+	}
+	
+	ptr = strstr(recvline,"SIZE ");
+	snprintf(filesize,strstr(ptr,"\r\n")-ptr-4,"%s",ptr+5);
 
 	if ((fp = malloc(sizeof(BFILE)+strlen(file)+1)) == NULL) {
 		close(sockfd);
@@ -55,6 +75,8 @@ BFILE *b_open(const char *host, const char *port, const char *file)
 	}
 	
 	fp->fd = sockfd;
+	fp->offset = 0;
+	fp->size = atoi(filesize);
 	strcpy(fp->name,file);
 
 	return(fp);
