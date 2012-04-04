@@ -70,6 +70,7 @@ struct entry_s {
 
 struct block_s {
 	entry_t *_head;
+	int32_t _count;
 	int32_t maxlevel;
 	int32_t (*compareEntry)(entry_t *, entry_t *);
 } ;
@@ -173,6 +174,7 @@ sstbloom_t *sstBloomCreate(uint32_t n, float p);
 void sstBloomDestroy(sstbloom_t *bloom);
 int32_t sstBloomInsertKey(sstbloom_t *bloom, const sds key);
 int32_t sstBloomCheckKey(sstbloom_t *bloom, const sds key);
+int32_t sstBloomInsertKeySets(sstbloom_t *bloom, sstblock_t *list);
 
 sstbloom_t *sstBloomLoadFromSStable(int32_t fd, int32_t offset, int32_t size);
 int32_t sstBloomDumpIntoSStable(int32_t fd, int32_t offset, sstbloom_t *bloom);
@@ -259,8 +261,8 @@ SST *ssTableOpen(const int8_t *sstname);
 void ssTableClose(SST *sst);
 entry_t *ssTableFind(SST *sst, sds key);
 
-SST ssTableMerge(SST *asst, SST *bsst);
-int32_t ssTableSplit(SST *sst, SST **asst, SST **bsst);
+int32_t ssTableMerge(SST *sst, SST *ssa, SST *ssb);
+int32_t ssTableSplit(SST *sst, SST *ssa, SST *ssb);
 
 
 

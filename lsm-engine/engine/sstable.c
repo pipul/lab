@@ -218,7 +218,8 @@ int32_t sstBlockInsertEntry(sstblock_t *list, entry_t *node)
         node->forward[i] = update[i]->forward[i];
         update[i]->forward[i] = node;
     }
-
+    
+    list->_count++;
     return(0);
 }
 
@@ -246,6 +247,7 @@ int32_t sstBlockDeleteEntry(sstblock_t *list, entry_t *node)
                 break;
         list->maxlevel = i + 1;
     }
+    list->_count--;
 	return(0);
 }
 
@@ -752,6 +754,15 @@ int32_t sstBloomCheckKey(sstbloom_t *bloom, const sds key)
     return(0);
 }
 
+int32_t sstBloomInsertKeySets(sstbloom_t *bloom, sstblock_t *list)
+{
+    entry_t *node;
+
+    for (node = sstBlockHeader(list); node != NULL; node = entryNext(node))
+        sstBloomInsertKey(bloom,node->key);
+    return(0);
+}
+
 sstbloom_t *sstBloomLoadFromSStable(int32_t fd, int32_t offset, int32_t size)
 {
     sstbloom_t *bloom;
@@ -1080,6 +1091,232 @@ entry_t *ssTableFind(SST *sst, sds key)
 }
 
 
+int32_t ssTableMerge(SST *sst, SST *ssA, SST *ssB)
+{
+    int32_t sstfd,nsstfd;
+    sstblock_t *bufferBlock;
+    meta_t *Ameta, *Bmeta, *bufferMeta, *seleteMeta;
+    entry_t *AEntry, *BEntry, *seleteEntry, *foundEntry;
+
+    if (!ssA || !ssB || !sst)
+        return(-1);
+    if (!sst->metas && (sst->metas = sstIndexCreate()) == NULL) {
+    //    ssTableDestroy(sst);
+        return(-1);
+    }
+    if (!sst->trailer && (sst->trailer = sstTrailerCreate()) == NULL) {
+    //    ssTableDestroy(sst);
+        return(-1);
+    }
+    if (!sst->fileinfo && (sst->fileinfo = sstInfoCreate()) == NULL) {
+    //    ssTableDestroy(sst);
+        return(-1);
+    }
+    if (!sst->bloom && (sst->bloom = sstBloomCreate(
+     ssA->fileinfo->entrycount + ssB->fileinfo->entrycount, BLOOM_P)) == NULL) {
+    //    ssTableDestroy(sst);
+        return(-1);
+    }
+    
+    do {
+        nsstfd = open(sst->s_name,O_RDONLY);
+    } while (nsstfd < 0);
+    
+    Ameta = sstIndexHeader(ssA->metas);
+    Bmeta = sstIndexHeader(ssB->metas);
+    while (Ameta || Bmeta) {
+        bufferMeta = metaCreate();
+        bufferBlock = sstBlockCreate();
+        if (!bufferMeta || !bufferBlock) {
+            if (bufferMeta)
+                metaFree(bufferMeta);
+            if (bufferBlock)
+                sstBlockFree(bufferBlock);
+            ssTableDestroy(sst);
+            return(-1);
+        }
+        /*
+        if (Ameta && Ameta->state != IN_CACHE) {
+            sstfd = open(ssA->s_name,O_RDONLY);
+            Ameta->block = sstBlockLoadFromSStable(sstfd,Ameta->offset,Ameta->blocksize);
+            close(sstfd);
+        }
+        if (Bmeta && Bmeta->state != IN_CACHE) {
+            sstfd = open(ssB->s_name,O_RDONLY);
+            Bmeta->block = sstBlockLoadFromSStable(sstfd,Bmeta->offset,Bmeta->blocksize);
+            close(sstfd);
+        }
+        */
+        while (sstBlockSize(bufferBlock) < BLOCK_SIZE) {
+            if (Ameta && Ameta->block && (AEntry = sstBlockHeader(Ameta->block)) == NULL) {
+                Ameta->state = IN_DISK;                
+                sstBlockDestroy(Ameta->block);
+                if ((Ameta = metaNext(Ameta)) != NULL) {
+                    if (Ameta->state != IN_CACHE) {
+                        Ameta->block = sstBlockLoadFromSStable(sstfd,Ameta->offset,Ameta->blocksize);
+                        Ameta->state = IN_CACHE;
+                    }
+                    AEntry = sstBlockHeader(Ameta->block);
+                }
+            }
+            if (Bmeta && Bmeta->block && (BEntry = sstBlockHeader(Bmeta->block)) == NULL) {
+                Bmeta->state = IN_DISK;
+                sstBlockDestroy(Bmeta->block);
+                if ((Bmeta = metaNext(Bmeta)) != NULL) {
+                    if (Bmeta->state != IN_CACHE) {
+                        Bmeta->block = sstBlockLoadFromSStable(sstfd,Bmeta->offset,Bmeta->blocksize);
+                        Bmeta->state = IN_CACHE;
+                    }
+                    BEntry = sstBlockHeader(Bmeta->block);
+                }
+            }
+            if (!AEntry && !BEntry)
+                break;
+            else if (!AEntry) {
+                seleteEntry = BEntry;
+                seleteMeta = Bmeta;
+            } else if (!BEntry) {
+                seleteEntry = AEntry;
+                seleteMeta = Ameta;
+            } else if (entryCompare(AEntry,BEntry) < 0) {
+                seleteEntry = AEntry;
+                seleteMeta = Ameta;
+            } else {
+                seleteEntry = BEntry;
+                seleteMeta = Bmeta;
+            }
+
+            sstBlockDeleteEntry(seleteMeta->block,seleteEntry);
+            if ((foundEntry = sstBlockFind(bufferBlock,seleteEntry->key)) != NULL) {
+                sstBlockDeleteEntry(bufferBlock,foundEntry);
+                entryDestroy(foundEntry);
+            }
+            sstBlockInsertEntry(bufferBlock,seleteEntry);
+        }
+        if (bufferBlock->_count > 0) {
+            bufferMeta->key = sdsdup((sstBlockHeader(bufferBlock))->key);
+            bufferMeta->blocksize = sstBlockSize(bufferMeta->block);
+            sstIndexInsertMeta(sst->metas,bufferMeta);
+            sstBloomInsertKeySets(sst->bloom,bufferBlock);
+            do {
+                bufferMeta->offset = lseek(nsstfd,0,SEEK_CUR);
+            } while (bufferMeta->blocksize !=
+             sstBlockDumpIntoSStable(nsstfd,bufferMeta->offset,bufferMeta->block));
+            /* free the sstable block cache data */
+            sstBlockDestroy(bufferBlock);
+        } else {
+            metaDestroy(bufferMeta);
+            sstBlockDestroy(bufferBlock);
+        }
+    }
+    sst->trailer->bloomoffset = lseek(nsstfd,0,SEEK_CUR);
+    sst->trailer->bloomsize = sstBloomDumpIntoSStable(nsstfd,sst->trailer->bloomoffset,sst->bloom);
+    sst->trailer->indexoffset = lseek(nsstfd,0,SEEK_CUR);
+    sst->trailer->indexsize = sstIndexDumpIntoSStable(nsstfd,sst->trailer->indexoffset,sst->metas);
+    sst->trailer->infooffset = lseek(nsstfd,0,SEEK_CUR);
+    sst->trailer->infosize = sstInfoDumpIntoSStable(nsstfd,sst->trailer->infooffset,sst->fileinfo);
+    sstTrailerDumpIntoSStable(nsstfd,lseek(nsstfd,0,SEEK_CUR),sst->trailer);
+
+    close(nsstfd);
+    return(0);
+}
+
+int32_t ssTableSplit(SST *sst, SST *ssA, SST *ssB)
+{
+    meta_t *curMeta;
+    int32_t i,sstfd,ssafd,ssbfd;
+
+    if (!sst || !ssA || !ssB)
+        return(-1);
+    if (!ssA->metas)
+        ssA->metas = sstIndexCreate();
+    if (!ssA->trailer)
+        ssA->trailer = sstTrailerCreate();
+    if (!ssA->fileinfo)
+        ssA->fileinfo = sstInfoCreate();
+    if (!ssA->bloom)
+        ssA->bloom = sstBloomCreate(sst->fileinfo->entrycount,BLOOM_P);
+    if (!ssA->metas || !ssA->trailer || !ssA->fileinfo || !ssA->bloom) {
+        sstIndexFree(ssA->metas);
+        sstTrailerFree(ssA->trailer);
+        sstInfoFree(ssA->fileinfo);
+        sstBloomDestroy(ssA->bloom);
+        return(-1);
+    }
+
+    if (!ssB->metas)
+        ssB->metas = sstIndexCreate();
+    if (!ssB->trailer)
+        ssB->trailer = sstTrailerCreate();
+    if (!ssB->fileinfo)
+        ssB->fileinfo = sstInfoCreate();
+    if (!ssB->bloom)
+        ssB->bloom = sstBloomCreate(sst->fileinfo->entrycount,BLOOM_P);
+    if (!ssB->metas || !ssB->trailer || !ssB->fileinfo || !ssB->bloom) {
+        sstIndexFree(ssB->metas);
+        sstTrailerFree(ssB->trailer);
+        sstInfoFree(ssB->fileinfo);
+        sstBloomDestroy(ssB->bloom);
+        return(-1);
+    }
+
+    sstfd = open(sst->s_name,O_WRONLY);
+
+    ssafd = open(ssA->s_name,O_WRONLY);
+    for (i = 0; i < (sst->fileinfo->blockcount) >> 1; i--) {
+        curMeta = sstIndexHeader(sst->metas);
+        sstIndexDeleteMeta(sst->metas,curMeta);        
+        sendfile(sstfd,curMeta->offset,ssafd,lseek(ssafd,0,SEEK_CUR),curMeta->blocksize);
+        curMeta->offset = lseek(ssafd,0,SEEK_CUR) - curMeta->blocksize;
+        sstIndexInsertMeta(ssA->metas,curMeta);
+    }
+    for (curMeta = sstIndexHeader(ssA->metas) ; curMeta != NULL; curMeta = metaNext(curMeta)) {
+        if (curMeta->state != IN_CACHE)
+            curMeta->block = sstBlockLoadFromSStable(ssafd,curMeta->offset,curMeta->blocksize);
+        sstBloomInsertKeySets(ssA->bloom,curMeta->block);
+        ssA->fileinfo->blockcount++;
+        ssA->fileinfo->entrycount = ssA->fileinfo->entrycount + curMeta->block->_count;
+        sstBlockDestroy(curMeta->block);
+        curMeta->state = IN_DISK;
+        curMeta->block = NULL;
+    }
+    ssA->trailer->indexoffset = lseek(ssafd,0,SEEK_CUR);
+    ssA->trailer->indexsize = sstIndexDumpIntoSStable(ssafd,ssA->trailer->indexoffset,ssA->metas);
+    ssA->trailer->bloomoffset = lseek(ssafd,0,SEEK_CUR);
+    ssA->trailer->bloomsize = sstBloomDumpIntoSStable(ssafd,ssA->trailer->bloomoffset,ssA->bloom);
+    ssA->trailer->infooffset = lseek(ssafd,0,SEEK_CUR);
+    ssA->trailer->infosize = sstInfoDumpIntoSStable(ssafd,ssA->trailer->infooffset,ssA->fileinfo);
+    sstTrailerDumpIntoSStable(ssafd,lseek(ssafd,0,SEEK_CUR),ssA->trailer);
+    close(ssafd);
+    
+    ssbfd = open(ssB->s_name,O_WRONLY);
+    for ( ; i < sst->fileinfo->blockcount; i--) {
+        curMeta = sstIndexHeader(sst->metas);
+        sstIndexDeleteMeta(sst->metas,curMeta);
+        sendfile(sstfd,curMeta->offset,ssbfd,lseek(ssbfd,0,SEEK_CUR),curMeta->blocksize);
+        curMeta->offset = lseek(ssbfd,0,SEEK_CUR) - curMeta->blocksize;
+        sstIndexInsertMeta(ssB->metas,curMeta);
+    }
+    for (curMeta = sstIndexHeader(ssB->metas) ; curMeta != NULL; curMeta = metaNext(curMeta)) {
+        if (curMeta->state != IN_CACHE)
+            curMeta->block = sstBlockLoadFromSStable(ssbfd,curMeta->offset,curMeta->blocksize);
+        sstBloomInsertKeySets(ssB->bloom,curMeta->block);
+        ssB->fileinfo->blockcount++;
+        ssB->fileinfo->entrycount = ssB->fileinfo->entrycount + curMeta->block->_count;
+        sstBlockDestroy(curMeta->block);
+        curMeta->state = IN_DISK;
+        curMeta->block = NULL;
+    }
+    ssB->trailer->indexoffset = lseek(ssbfd,0,SEEK_CUR);
+    ssB->trailer->indexsize = sstIndexDumpIntoSStable(ssbfd,ssB->trailer->indexoffset,ssB->metas);
+    ssB->trailer->bloomoffset = lseek(ssbfd,0,SEEK_CUR);
+    ssB->trailer->bloomsize = sstBloomDumpIntoSStable(ssbfd,ssB->trailer->bloomoffset,ssB->bloom);
+    ssB->trailer->infooffset = lseek(ssbfd,0,SEEK_CUR);
+    ssB->trailer->infosize = sstInfoDumpIntoSStable(ssbfd,ssB->trailer->infooffset,ssB->fileinfo);
+    sstTrailerDumpIntoSStable(ssbfd,lseek(ssbfd,0,SEEK_CUR),ssB->trailer);
+    close(ssbfd);
+    return(0);
+}
 
 
 

@@ -224,10 +224,9 @@ SST *memTableDumpToSStable(MET *list)
         sstIndexInsertMeta(sst->metas,curMeta);
     } while (curEntry != NULL);
     
-    int8_t *s_nptr;
+    sst->trailer->timestamp = time(NULL);
     do {
-        sst->trailer->timestamp = time(NULL);
-        snprintf(sst->s_name,PATH_MAX,"%s/%s",DB_PATH,sst->trailer->timestamp);
+        snprintf(sst->s_name,PATH_MAX,"%s/%ld.sst",DB_PATH,time(NULL));
         sstfd = open(sst->s_name,O_WRONLY|O_APPEND|O_CREAT|O_EXCL,0644);
     } while (sstfd < 0);
     for (curMeta = sstIndexHeader(sst->metas); curMeta != NULL; curMeta = metaNext(curMeta)) {
