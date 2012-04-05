@@ -35,6 +35,7 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <math.h>
+#include <unistd.h>
 
 
 #include "utils.h"

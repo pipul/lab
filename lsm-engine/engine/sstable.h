@@ -91,9 +91,13 @@ void sstBlockDestroy(sstblock_t *list);
 int32_t sstBlockSize(sstblock_t *list);
 entry_t *sstBlockHeader(sstblock_t *list);
 entry_t *sstBlockTailer(sstblock_t *list);
+entry_t *sstBlockPickupMin(sstblock_t *list);
+entry_t *sstBlockPickupMax(sstblock_t *list);
 entry_t *sstBlockFind(sstblock_t *list, sds key);
 int32_t sstBlockInsertEntry(sstblock_t *list, entry_t *node);
 int32_t sstBlockDeleteEntry(sstblock_t *list, entry_t *node);
+
+
 
 sstblock_t *sstBlockLoadFromSStable(int32_t fd, int32_t offset, int32_t size);
 int32_t sstBlockDumpIntoSStable(int32_t fd, int32_t offset, sstblock_t *list);
