@@ -168,8 +168,6 @@ int32_t memTableDeleteEntry(MET *list, entry_t *node)
 	return(0);
 }
 
-#define DB_PATH "dbase"
-
 
 SST *memTableDumpToSStable(MET *list)
 {
@@ -190,8 +188,7 @@ SST *memTableDumpToSStable(MET *list)
         ssTableDestroy(sst);
         return(NULL);
     }
-    for (curEntry =
-     memTableHeader(list); curEntry != NULL; curEntry = entryNext(curEntry))
+    for (curEntry = memTableHeader(list); curEntry != NULL; curEntry = entryNext(curEntry))
         sstBloomInsertKey(sst->bloom,curEntry->key);
     sst->fileinfo->entrycount = list->items;
     sst->fileinfo->lastkey = sdsdup((memTableTailer(list))->key);
@@ -222,11 +219,12 @@ SST *memTableDumpToSStable(MET *list)
         curMeta->key = sdsdup((sstBlockHeader(curMeta->block))->key);
         curMeta->state = IN_CACHE;
         sstIndexInsertMeta(sst->metas,curMeta);
+        sst->fileinfo->blockcount++;
     } while (curEntry != NULL);
     
     sst->trailer->timestamp = time(NULL);
     do {
-        snprintf(sst->s_name,PATH_MAX,"%s/%ld.sst",DB_PATH,time(NULL));
+        snprintf(sst->s_name,PATH_MAX,"%ld.sst",time(NULL));
         sstfd = open(sst->s_name,O_WRONLY|O_APPEND|O_CREAT|O_EXCL,0644);
     } while (sstfd < 0);
     for (curMeta = sstIndexHeader(sst->metas); curMeta != NULL; curMeta = metaNext(curMeta)) {
@@ -243,3 +241,46 @@ SST *memTableDumpToSStable(MET *list)
     close(sstfd);
     return(sst);
 }
+
+
+/*
+ * Memtable Test Case
+ *
+
+int32_t main(int32_t argc, int8_t **argv)
+{
+    MET *list;
+    SST *sst;
+    int32_t i,n;
+    entry_t *o;
+    int8_t buffer[KEY_MAX];
+    int32_t count_o,count_e;
+    
+    
+    if (argc != 2)
+        return(-1);
+    n = atoi(argv[1]);
+    count_o = count_e = 0;
+    list = memTableCreate();
+
+	for (i = 1; i <= n; i++) {
+	    o = entryCreate();
+		snprintf(buffer,KEY_MAX,"%20d",i);
+		o->key = sdsnew(buffer);
+		snprintf(buffer,KEY_MAX,"value = %32d",i);
+		o->value = sdsnew(buffer);
+		if (0 == memTableInsertEntry(list,o))
+			count_o++;
+		else
+			count_e++;
+		if (i % 10000 == 0) {
+			fprintf(stderr,"random-write finished %d ops\r",i);
+			fflush(stderr);
+		}
+	}
+	sst = memTableDumpToSStable(list);
+	memTableDestroy(list);
+	ssTableClose(sst);
+}
+
+ */
