@@ -740,7 +740,7 @@ void sstBloomDestroy(sstbloom_t *bloom)
     free(bloom);
 }
 
-int32_t sstBloomInsertkey(sstbloom_t *bloom, const sds key)
+int32_t sstBloomInsertKey(sstbloom_t *bloom, const sds key)
 {
     int32_t n;
     int32_t slen;
@@ -782,7 +782,7 @@ int32_t sstBloomInsertKeySets(sstbloom_t *bloom, sstblock_t *list)
     entry_t *node;
 
     for (node = sstBlockHeader(list); node != NULL; node = entryNext(node))
-        sstBloomInsertkey(bloom,node->key);
+        sstBloomInsertKey(bloom,node->key);
         
     return(0);
 }
