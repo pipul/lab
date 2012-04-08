@@ -37,10 +37,7 @@
 #include <limits.h>
 #include <stdint.h>
 #include <time.h>
-#include "utils.h"
-
-#define LEVEL_MAX 15
-#define SKIPLIST_P 0.25
+#include "lsm.h"
 
 
 /* The Data Block segment ------->
@@ -58,27 +55,37 @@
 
 
 
-typedef struct entry_s entry_t;
-typedef struct block_s sstblock_t;
 
-struct entry_s {
-	sds key;
-	sds value;
-	int32_t level;
-	entry_t *forward[];
-} ;
 
-struct block_s {
+
+#ifndef __LSM_H_
+
+    typedef struct entry {
+	    sds key;
+	    sds value;
+	    int32_t level;
+	    struct entry *forward[];
+    } entry_t;
+
+    typedef struct entry entry_t;
+
+    entry_t *entryCreate(void);
+    void entryDestroy(entry_t *node);
+
+#endif
+
+
+
+typedef struct block_t {
 	entry_t *_head;
 	int32_t _count;
 	int32_t maxlevel;
 	int32_t (*compareEntry)(entry_t *, entry_t *);
-} ;
+} sstblock_t;
 
-entry_t *entryCreate(void);
 entry_t *entryCreateByLevel(int32_t level);
 void entryFree(entry_t *node);
-void entryDestroy(entry_t *node);
+
 entry_t *entryNext(entry_t *node);
 int32_t entrySize(entry_t *node);
 int32_t entryValid(entry_t *node);
@@ -113,10 +120,10 @@ int32_t sstBlockDumpIntoSStable(int32_t fd, int32_t offset, sstblock_t *list);
  */
 
 
-typedef struct meta_s meta_t;
-typedef struct sstindex_s sstindex_t;
+typedef struct meta meta_t;
+typedef struct sstindex sstindex_t;
 
-struct meta_s {
+struct meta {
 	sds key;
 	int32_t state;		/* IN_CACHE or IN_DISK */
 #define IN_DISK 	0
@@ -128,7 +135,7 @@ struct meta_s {
 	meta_t *forward[];
 } ;
 
-struct sstindex_s {
+struct sstindex {
 	meta_t *_head;
 	int32_t maxlevel;
 	int (*compareMeta)(meta_t *, meta_t *);
@@ -166,7 +173,7 @@ int32_t sstIndexDumpIntoSStable(int32_t fd, int32_t offset, sstindex_t *list);
 
 #define BLOOM_P 0.01
 
-typedef struct {
+typedef struct sstbloom {
 	int32_t size;
 	int32_t mbits;
 	int32_t hashn;
@@ -241,33 +248,41 @@ int32_t sstTrailerDumpIntoSStable(int32_t fd, int32_t offset, ssttrailer_t *ssr)
 
 
 
+#ifndef __LSM_H_
 
+    struct ssttrailer;
+    struct sstinfo;
+    struct sstbloom;
+    struct sstindex;
 
-/* The SStable Handler  ------->
- * When open a SStable, will create an instance of a SST, SST
- * maintains a pointer to point to each segment of the storage file.
- */
+    typedef struct SStable {
+        struct ssttrailer *trailer;
+        struct sstinfo *fileinfo;
+        struct sstindex *metas;
+        struct sstbloom *bloom;
+        int8_t s_name[_PATH_MAX];
+    } SST;
 
-typedef struct SStable {
-    ssttrailer_t *trailer;      /* SStable trailer */
-    sstinfo_t *fileinfo;        /* SStable info */
-    sstindex_t *metas;	        /* SStable meta lists */
-    sstbloom_t *bloom;          /* SStable bloom data */
-    int8_t s_name[PATH_MAX];    /* SStable name */
-} SST;
+    SST *ssTableCreate(void);
+    void ssTableFree(SST *sst);
+    void ssTableDestroy(SST *sst);
 
+    SST *ssTableOpen(const int8_t *sstname, int32_t flags, ...);
+    void ssTableClose(SST *sst);
+    entry_t *ssTableFind(SST *sst, sds key);
+
+    int32_t ssTableMerge(SST *sst, SST *ssa, SST *ssb);
+    int32_t ssTableSplit(SST *sst, SST *ssa, SST *ssb);
+
+#endif
+
+#ifdef __LSM_H_
 
 SST *ssTableCreate(void);
 void ssTableFree(SST *sst);
 void ssTableDestroy(SST *sst);
 
-SST *ssTableOpen(const int8_t *sstname);
-void ssTableClose(SST *sst);
-entry_t *ssTableFind(SST *sst, sds key);
 
-int32_t ssTableMerge(SST *sst, SST *ssa, SST *ssb);
-int32_t ssTableSplit(SST *sst, SST *ssa, SST *ssb);
-
-
+#endif
 
 #endif

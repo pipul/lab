@@ -45,9 +45,9 @@
 static int32_t slRandomLevel(void)
 {
     int level = 1;
-    while ((rand()&0xFFFF) < (SKIPLIST_P * 0xFFFF))
+    while ((rand()&0xFFFF) < (_SKIPLIST_P * 0xFFFF))
         level += 1;
-    return (level < LEVEL_MAX) ? level : LEVEL_MAX;
+    return (level < _LEVEL_MAX) ? level : _LEVEL_MAX;
 }
 
 
@@ -131,7 +131,7 @@ sstblock_t *sstBlockCreate(void)
     if ((list = malloc(sizeof(sstblock_t))) == NULL)
         return(NULL);
     memset(list,0,sizeof(sstblock_t));
-    if ((list->_head = entryCreateByLevel(LEVEL_MAX)) == NULL) {
+    if ((list->_head = entryCreateByLevel(_LEVEL_MAX)) == NULL) {
         sstBlockFree(list);
         return(NULL);
     }
@@ -221,7 +221,7 @@ entry_t *sstBlockPickupMax(sstblock_t *list)
 
 int32_t sstBlockInsertEntry(sstblock_t *list, entry_t *node)
 {
-    entry_t *curNode, *update[LEVEL_MAX - 1];
+    entry_t *curNode, *update[_LEVEL_MAX - 1];
     int32_t i;
 
     if (!list || !node)
@@ -249,7 +249,7 @@ int32_t sstBlockInsertEntry(sstblock_t *list, entry_t *node)
 
 int32_t sstBlockDeleteEntry(sstblock_t *list, entry_t *node)
 {
-    entry_t *curNode, *update[LEVEL_MAX - 1];
+    entry_t *curNode, *update[_LEVEL_MAX - 1];
     int32_t i;
 
     if (!list || !node)
@@ -465,7 +465,7 @@ sstindex_t *sstIndexCreate(void)
     if ((list = malloc(sizeof(sstindex_t))) == NULL)
         return(NULL);
     memset(list,0,sizeof(sstindex_t));
-    if ((list->_head = metaCreateByLevel(LEVEL_MAX)) == NULL) {
+    if ((list->_head = metaCreateByLevel(_LEVEL_MAX)) == NULL) {
         sstIndexFree(list);
         return(NULL);
     }
@@ -519,7 +519,7 @@ meta_t *sstIndexTailer(sstindex_t *list)
 int32_t sstIndexInsertMeta(sstindex_t *list, meta_t *node)
 {
     int32_t i;
-    meta_t *curNode, *update[LEVEL_MAX - 1];
+    meta_t *curNode, *update[_LEVEL_MAX - 1];
     
     if (!list || !node)
         return(-1);
@@ -545,7 +545,7 @@ int32_t sstIndexInsertMeta(sstindex_t *list, meta_t *node)
 int32_t sstIndexDeleteMeta(sstindex_t *list, meta_t *node)
 {
     int32_t i;
-    meta_t *curNode, *update[LEVEL_MAX - 1];
+    meta_t *curNode, *update[_LEVEL_MAX - 1];
 
     if (!list || !node)
         return(-1);
@@ -744,7 +744,7 @@ int32_t sstBloomInsertKey(sstbloom_t *bloom, const sds key)
 {
     int32_t n;
     int32_t slen;
-    int8_t buf[KEY_MAX + 1];
+    int8_t buf[_KEY_MAX + 1];
 
     slen = sdslen(key);
     memcpy(buf,key,slen);
@@ -762,7 +762,7 @@ int32_t sstBloomCheckKey(sstbloom_t *bloom, const sds key)
 {
     int32_t n;
     int32_t slen;
-    int8_t buf[KEY_MAX + 1];
+    int8_t buf[_KEY_MAX + 1];
 
     slen = sdslen(key);
     memcpy(buf,key,slen);
@@ -1037,50 +1037,63 @@ void ssTableDestroy(SST *sst)
 }
 
 
-SST *ssTableOpen(const int8_t *sstname)
+SST *ssTableOpen(const int8_t *sstname, int32_t flags, ...)
 {
     SST *sst;
-    int32_t sstfd;
+    va_list ap;
+    int32_t sstfd, mode;
 
     if (!sstname || strlen(sstname) == 0)
         return(NULL);
     if ((sst = ssTableCreate()) == NULL)
         return(NULL);
     memcpy(sst->s_name,sstname,strlen(sstname));
-    if ((sstfd = open(sst->s_name,O_RDONLY)) < 0) {
-        ssTableFree(sst);
-        return(NULL);
-    }
 
-    sst->trailer = sstTrailerLoadFromSStable(sstfd,-sizeof(ssttrailer_t),sizeof(ssttrailer_t));
-    if (sst->trailer == NULL) {
-        ssTableFree(sst);
+    if (flags & SST_OPEN) {
+        if ((sstfd = open(sst->s_name,O_RDONLY)) < 0) {
+            ssTableFree(sst);
+            return(NULL);
+        }
+        sst->trailer =
+         sstTrailerLoadFromSStable(sstfd,-sizeof(ssttrailer_t),sizeof(ssttrailer_t));
+        if (sst->trailer == NULL) {
+            ssTableFree(sst);
+            close(sstfd);
+            return(NULL);
+        }
+        sst->fileinfo =
+         sstInfoLoadFromSStable(sstfd,sst->trailer->infooffset,sst->trailer->infosize);
+        if (sst->fileinfo == NULL) {
+            ssTableDestroy(sst);
+            close(sstfd);
+            return(NULL);
+        }
+        sst->metas =
+         sstIndexLoadFromSStable(sstfd,sst->trailer->indexoffset,sst->trailer->indexsize);
+        if (sst->metas == NULL) {
+            ssTableDestroy(sst);
+            close(sstfd);
+            return(NULL);
+        }
+        sst->bloom =
+         sstBloomLoadFromSStable(sstfd,sst->trailer->bloomoffset,sst->trailer->bloomsize);
+        if (sst->bloom == NULL) {
+	        ssTableDestroy(sst);
+	        close(sstfd);
+	        return(NULL);
+	    }
         close(sstfd);
-        return(NULL);
-    }
-
-    sst->fileinfo = sstInfoLoadFromSStable(sstfd,sst->trailer->infooffset,sst->trailer->infosize);
-    if (sst->fileinfo == NULL) {
-        ssTableDestroy(sst);
+    } else if (flags & SST_CREAT) {
+        va_start(ap,flags);
+        mode = va_arg(ap,int32_t);
+        va_end(ap);
+        if ((sstfd = open(sst->s_name,O_RDWR|O_APPEND|O_CREAT|O_EXCL,mode)) < 0) {
+            ssTableFree(sst);
+            return(NULL);
+        }
         close(sstfd);
-        return(NULL);
     }
 
-    sst->metas = sstIndexLoadFromSStable(sstfd,sst->trailer->indexoffset,sst->trailer->indexsize);
-    if (sst->metas == NULL) {
-        ssTableDestroy(sst);
-        close(sstfd);
-        return(NULL);
-    }
-
-    sst->bloom = sstBloomLoadFromSStable(sstfd,sst->trailer->bloomoffset,sst->trailer->bloomsize);
-    if (sst->bloom == NULL) {
-	    ssTableDestroy(sst);
-	    close(sstfd);
-	    return(NULL);
-	}
-
-    close(sstfd);
     return(sst);
 }
 
@@ -1153,7 +1166,7 @@ int32_t ssTableMerge(SST *sst, SST *ssa, SST *ssb)
             return(-1);
         }
 
-        while (sstBlockSize(bufferBlock) < BLOCK_SIZE) {
+        while (sstBlockSize(bufferBlock) < _BLOCK_SIZE) {
             do {
                 if (!Ameta)
                     break;

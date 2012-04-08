@@ -142,10 +142,17 @@ typedef struct SStable {
 } SST;
 
 
-/* The ssTableopen() function opens the sstable whose name is the string
- * pointed to by sstname and associates some infomation with it, such as
- * trailer and fileinfo ...  */
-SST *ssTableOpen(const int8_t *sstname);
+/* Given a sstname for a sstable file, ssTableOpen() open a sstable file or
+ * create a new one and returns a SST handle. the argument flags must include
+ * one of the following access modes: SST_OPEN, SST_CREAT. These request
+ * opening the sstable file or create a new sstable, respectively.
+ 
+ * mode specifies the permisstions to use in case a new sstable is created.
+ * This argument must be supplied when SST_CREAT is specified in flags. 
+ */
+SST *ssTableOpen(const int8_t *sstname, int32_t flags, ... /* mode */);
+#define SST_OPEN    0x01
+#define SST_CREAT   0x02
 
 /* The ssTableClose() function will frees all the memory space handled
  * by SST object and close the sst handle. */
@@ -163,11 +170,13 @@ entry_t *ssTableFind(SST *sst, sds key);
  * in ssa->s_name and ssb->s_name. sst are in/out parameters.
  * 
  * in: just an empty object of SST and only contain its filename.
- *      1. sst = ssTableCreate();
- *      2. copy the new sstable name into sst->s_name buffer.
+ *      1. sst = ssTableOpen(sstname,SST_CREAT,0644);
+ *
  * out: a new SST object contains all the contents of ssa and ssb. when return
  * , you shouldn't continue to use the ssa/ssb handle, recommend you to delete
  * the Old SStable file(ssa/ssb) manual.
+ *      2.  ssa = ssTableOpen(sstname,SST_OPEN);
+            ssb = ssTableOpen(sstname,SST_OPEN);
  */
 int32_t ssTableMerge(SST *sst, SST *ssa, SST *ssb);
 
@@ -208,6 +217,7 @@ typedef struct memtable {
         int32_t free;
         int8_t *data;
     } aof_buf;
+    int32_t timestamp;      /* Records the last transaction perform time */
 #define AOF_BUFFERSIZE 4096
     int32_t (*compareEntry)(entry_t *, entry_t *);
 } MET;
@@ -220,10 +230,17 @@ typedef struct memtable {
  * In addition, zero or more memtable createion flags can be bitwise-or'd
  * in flags.
         AOF_SYNC: this flag mush be specified in conjuction with AOF_ON.
+        Open AOF_SYNC flag does not necessarily needed. applications that
+        access log file often update(insert/delete) a entry and then call
+        fsync() immediately in order to ensure that the update-log is
+        physically stored on the harddisk.
  * Warning: if AOF_SYNC isn't specified and AOF_ON was turn on. MemTable
  * will cache the aof log and fflush the log data to aofile when it hits
- * a threshold. */
-MET *memTableCreate(int32_t flag, ...);
+ * a threshold. 
+ *
+ * aof_fd : This argument must be supplied when AOF_ON is specified.
+ */
+MET *memTableCreate(int32_t flag, ... /* int32_t aof_fd */);
 
 
 /* The memTableDestroy() function frees all the memory space handled by
@@ -250,14 +267,20 @@ int32_t memTableDeleteEntry(MET *list, entry_t *node);
 
 
 /* When memtable size hits the Threshold, memTableDumpToSStable() will flushes
- * all the entries to an on disk SSTable. */
-SST *memTableDumpToSStable(MET *list);
+ * all the entries to an on disk SSTable.
+ * Warning: sst is an in/out parameters.
+ * an new sstable which must be created by ssTableOpen(sstname,SST_CREAT,0...)
+ */
+int32_t memTableDumpToSStable(MET *list, SST *sst);
 
 
 /* aofileLoadToMemtable() function opens the aof file and load all the aof
  * file contents to memory, return a MET handle for continue inserting operate
- * log. insert or delete. */
-MET *aofileLoadToMemtable(int32_t aof_fd);
+ * log. insert or delete.
+ * Warning: list also is an in/out parameters.
+ * an empty MET object which must be created by memTableCreate()
+ */
+int32_t aofileLoadToMemtable(MET *list, int32_t aof_fd);
 
 
 
