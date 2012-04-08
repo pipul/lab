@@ -247,7 +247,10 @@ int32_t memTableDumpToSStable(MET *list, SST *sst)
 
     if (!list || list->items == 0 || !sst)
         return(-1);
-
+    /* Save the origin aof_flag and turn off the AOF function. Because during
+     * the dumping process memTableDeleteEntry() operate will cause an AOF 
+     * persistence transaction. after that, it recovers the aof_flag.
+     */
     aof_flag = memTableControl(list,AOF_OFF);
 
     if (sst->trailer == NULL)
@@ -270,7 +273,7 @@ int32_t memTableDumpToSStable(MET *list, SST *sst)
     
     int32_t blocksize;
     do {
-        /* Each Data block contains one or more entries. */
+        /* Each Data block contains at less one entries or more. */
         blocksize = _BLOCK_SIZE;
         curEntry = memTableHeader(list);
         if ((curMeta = metaCreate()) == NULL)
@@ -315,11 +318,10 @@ int32_t memTableDumpToSStable(MET *list, SST *sst)
     sstTrailerDumpIntoSStable(sstfd,lseek(sstfd,0,SEEK_CUR),sst->trailer);
     close(sstfd);
 
-    snprintf(aof_fileLink,_PATH_MAX,"/proc/self/fd/%d",list->aof_fd);
-    aof_fileName[readlink(aof_fileLink,aof_fileName,_PATH_MAX - 1)] = 0;
-    remove(aof_fileName);
-    naof_fd = open(aof_fileName,O_WRONLY|O_CREAT,0644);
-    dup2(naof_fd,list->aof_fd);
+    /* When a memTable was dumped on disk successfully, the aof file will be
+     * truncated to a zero size. as you see, that is new aof persistence file.
+     */
+    ftruncate(list->aof_fd,0);
     memTableControl(list,aof_flag);
 
     return(0);
