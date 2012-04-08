@@ -1,0 +1,21 @@
+Where to find complete HPDB documentation?
+-------------------------------------------
+
+This README is just a fast "quick start" document. You can find more
+detailed documentation at http://pipul.org
+
+Building HPDB library
+---------------------
+
+It is as simple as:
+
+    % make
+
+After building libdb.a is a good idea to test it, using:
+
+    % make db-bench
+    % ./db-bench <database path> <write | delete | read> count
+
+NOTE: now HPDB just support 32bit linux/unix system.
+
+ENJOY!

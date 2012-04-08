@@ -1,0 +1,4 @@
+keys:                             20
+values:                           40
+entries:                       10000
+Random-Read (done:0 cost:0s): 0.0 reads/sec

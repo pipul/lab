@@ -1,0 +1,61 @@
+==23035== Memcheck, a memory error detector
+==23035== Copyright (C) 2002-2010, and GNU GPL'd, by Julian Seward et al.
+==23035== Using Valgrind-3.6.0 and LibVEX; rerun with -h for copyright info
+==23035== Command: ./db dbase del 5000
+==23035== Parent PID: 22998
+==23035== 
+--23035-- 
+--23035-- Valgrind options:
+--23035--    -v
+--23035--    --log-file=db.log
+--23035--    --leak-check=full
+--23035--    --show-reachable=yes
+--23035-- Contents of /proc/version:
+--23035--   Linux version 2.6.32-220.el6.i686 (mockbuild@c6b18n3.bsys.dev.centos.org) (gcc version 4.4.6 20110731 (Red Hat 4.4.6-3) (GCC) ) #1 SMP Tue Dec 6 16:15:40 GMT 2011
+--23035-- Arch and hwcaps: X86, x86-sse1-sse2
+--23035-- Page sizes: currently 4096, max supported 4096
+--23035-- Valgrind library directory: /usr/lib/valgrind
+--23035-- Reading syms from /lib/ld-2.12.so (0x8c3000)
+--23035-- Reading syms from /media/projects/works/github/HPDB/db (0x8048000)
+--23035-- Reading syms from /usr/lib/valgrind/memcheck-x86-linux (0x38000000)
+--23035--    object doesn't have a dynamic symbol table
+--23035-- Reading suppressions file: /usr/lib/valgrind/default.supp
+--23035-- REDIR: 0x8da710 (index) redirected to 0x38040993 (vgPlain_x86_linux_REDIR_FOR_index)
+--23035-- Reading syms from /usr/lib/valgrind/vgpreload_core-x86-linux.so (0x4001000)
+--23035-- Reading syms from /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so (0x4003000)
+==23035== WARNING: new redirection conflicts with existing -- ignoring it
+--23035--     new: 0x008da710 (index               ) R-> 0x04007b20 index
+--23035-- REDIR: 0x8da8d0 (strlen) redirected to 0x4007f60 (strlen)
+--23035-- Reading syms from /lib/libm-2.12.so (0xaaa000)
+--23035-- Reading syms from /lib/libpthread-2.12.so (0xa82000)
+--23035-- Reading syms from /lib/libc-2.12.so (0x8e9000)
+--23035-- REDIR: 0x967350 (strstr) redirected to 0x4001420 (_vgnU_ifunc_wrapper)
+--23035-- REDIR: 0x9679d0 (__GI_strstr) redirected to 0x4009990 (strstr)
+--23035-- REDIR: 0x960580 (rindex) redirected to 0x40079d0 (rindex)
+--23035-- REDIR: 0x95fb90 (strcmp) redirected to 0x4001420 (_vgnU_ifunc_wrapper)
+--23035-- REDIR: 0xa1e560 (__strcmp_ssse3) redirected to 0x4008540 (strcmp)
+--23035-- REDIR: 0x962dd0 (strchrnul) redirected to 0x4009760 (strchrnul)
+--23035-- REDIR: 0x95b870 (malloc) redirected to 0x4006770 (malloc)
+--23035-- REDIR: 0x9613d0 (memset) redirected to 0x4001420 (_vgnU_ifunc_wrapper)
+--23035-- REDIR: 0xa15210 (__memset_sse2) redirected to 0x4009660 (memset)
+--23035-- REDIR: 0x9601d0 (__GI_strlen) redirected to 0x4007f40 (__GI_strlen)
+--23035-- REDIR: 0x960180 (strlen) redirected to 0x4001420 (_vgnU_ifunc_wrapper)
+--23035-- REDIR: 0x967280 (__strlen_sse2_bsf) redirected to 0x4007f20 (strlen)
+--23035-- REDIR: 0x9619c0 (memcpy) redirected to 0x4001420 (_vgnU_ifunc_wrapper)
+--23035-- REDIR: 0xa16320 (__memcpy_ssse3) redirected to 0x4008700 (memcpy)
+--23035-- REDIR: 0x95c440 (free) redirected to 0x4006150 (free)
+--23035-- REDIR: 0x960fe0 (bcmp) redirected to 0x4001420 (_vgnU_ifunc_wrapper)
+--23035-- REDIR: 0xa21480 (__memcmp_ssse3) redirected to 0x40091e0 (bcmp)
+--23035-- REDIR: 0x95b560 (calloc) redirected to 0x40052c0 (calloc)
+==23035== 
+==23035== HEAP SUMMARY:
+==23035==     in use at exit: 0 bytes in 0 blocks
+==23035==   total heap usage: 27,877 allocs, 27,877 frees, 24,539,258 bytes allocated
+==23035== 
+==23035== All heap blocks were freed -- no leaks are possible
+==23035== 
+==23035== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 14 from 8)
+--23035-- 
+--23035-- used_suppression:     14 U1004-ARM-_dl_relocate_object
+==23035== 
+==23035== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 14 from 8)
