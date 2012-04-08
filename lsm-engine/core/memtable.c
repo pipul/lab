@@ -32,28 +32,45 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include <unistd.h>
+#include <sys/mman.h>
+#include <fcntl.h>
 
 #include "memtable.h"
 
-
-MET *memTableCreate(void)
+MET *memTableCreate(int32_t flag, ...)
 {
     MET *list;
-   
+    va_list ap;
+
     if ((list = malloc(sizeof(MET))) == NULL)
         return(NULL);
+    if (!(flag & AOF_ON) && !(flag & AOF_OFF))
+        return(NULL);
     memset(list,0,sizeof(MET));
-    if ((list->_head = entryCreateByLevel(LEVEL_MAX)) == NULL) {
-        memTableFree(list);
+    if ((list->_head = entryCreateByLevel(_LEVEL_MAX)) == NULL) {
+        free(list);
         return(NULL);
     }
     list->compareEntry = entryCompare;
+    list->aof_flag = flag;
+    if (flag & AOF_ON) {
+        va_start(ap,flag);
+        list->aof_fd = va_arg(ap,int32_t);
+        va_end(ap);
+    }
+    
+    list->aof_buf.free = AOF_BUFFERSIZE;
+    do {
+        list->aof_buf.data = malloc(AOF_BUFFERSIZE);
+    } while (list->aof_buf.data == NULL);
+
     return(list);
 }
 
-void memTableFree(MET *list)
+static void memTableFree(MET *list)
 {
+    free(list->aof_buf.data);
     free(list);
 }
 
@@ -72,6 +89,26 @@ void memTableDestroy(MET *list)
     }
     memTableFree(list);
 }
+
+int32_t memTableControl(MET *list, int32_t flag)
+{
+    int32_t aof_recentflag = list->aof_flag;
+
+    if (flag & AOF_ON) {
+        list->aof_flag = list->aof_flag & (~AOF_OFF);
+        list->aof_flag = list->aof_flag | AOF_ON;
+        list->aof_buf.len = 0;
+        list->aof_buf.free = AOF_BUFFERSIZE;
+        if (flag & AOF_SYNC)
+            list->aof_flag = list->aof_flag | AOF_SYNC;
+    } else if (flag & AOF_OFF) {
+        list->aof_flag = list->aof_flag & (~AOF_ON);
+        list->aof_flag = list->aof_flag | AOF_OFF;
+    }
+    return(aof_recentflag);
+}
+
+
 
 entry_t *memTableHeader(MET *list)
 {
@@ -113,13 +150,31 @@ entry_t *memTableFind(MET *list, sds key)
     return(NULL);
 }
 
+
 int32_t memTableInsertEntry(MET *list, entry_t *node)
 {
-    entry_t *curNode, *update[LEVEL_MAX - 1];
-    int32_t i;
+    int32_t i,klen,vlen;
+    entry_t *curNode, *update[_LEVEL_MAX - 1];
 
     if (!list || !node)
         return(-1);
+
+    if (list->aof_flag & AOF_ON) {
+        klen = sdslen(node->key) + sizeof(int32_t);
+        vlen = sdslen(node->value) + sizeof(int32_t);
+        if (list->aof_buf.free >= entrySize(node)) {
+            memcpy(list->aof_buf.data,node->key - sizeof(sdshdr),klen);
+            memcpy(list->aof_buf.data + klen,node->value - sizeof(sdshdr),vlen);
+            write(list->aof_fd,list->aof_buf.data,klen + vlen);
+        } else {
+            write(list->aof_fd,node->key - sizeof(sdshdr),klen);
+            write(list->aof_fd,node->value - sizeof(sdshdr),vlen);
+        }
+        if (list->aof_flag & AOF_SYNC)
+            fsync(list->aof_fd);
+    }
+
+
     curNode = list->_head;
     for (i = list->maxlevel - 1; i >= 0; i--) {
         while (curNode->forward[i] != NULL && list->compareEntry(curNode->forward[i],node) < 0)
@@ -137,16 +192,29 @@ int32_t memTableInsertEntry(MET *list, entry_t *node)
         update[i]->forward[i] = node;
     }
     list->items++;
+    list->timestamp = time(NULL);
     return(0);
 }
 
 int32_t memTableDeleteEntry(MET *list, entry_t *node)
 {
-    int32_t i;
-    entry_t *curNode, *update[LEVEL_MAX - 1];
+    int32_t i,klen;
+    entry_t *curNode, *update[_LEVEL_MAX - 1];
 
     if (!list || !node)
         return(-1);
+    
+    if (list->aof_flag & AOF_ON) {
+        klen = sdslen(node->key) + sizeof(int32_t);
+        if (list->aof_buf.free >= klen) {
+            memcpy(list->aof_buf.data,node->key - sizeof(sdshdr),klen);
+            write(list->aof_fd,list->aof_buf.data,klen);
+        } else
+            write(list->aof_fd,node->key - sizeof(sdshdr),klen);
+        if (list->aof_flag & AOF_SYNC)
+            fsync(list->aof_fd);
+    }
+    
     curNode = list->_head;
     for (i = list->maxlevel - 1; i >= 0; i--) {
         while (curNode->forward[i] != NULL && list->compareEntry(curNode->forward[i],node) < 0)
@@ -165,38 +233,45 @@ int32_t memTableDeleteEntry(MET *list, entry_t *node)
         list->maxlevel = i + 1;
     }
 	list->items--;
+//    list->timestamp = time(NULL);
 	return(0);
 }
 
 
-SST *memTableDumpToSStable(MET *list)
+int32_t memTableDumpToSStable(MET *list, SST *sst)
 {
-    SST *sst;
-    int32_t sstfd;
+    int32_t sstfd,aof_flag,naof_fd;
     meta_t *curMeta;
     entry_t *curEntry;
+    int8_t aof_fileName[_PATH_MAX], aof_fileLink[_PATH_MAX];
 
-    if (!list || list->items == 0)
-        return(NULL);
-    if ((sst = ssTableCreate()) == NULL)
-        return(NULL);
-    sst->trailer = sstTrailerCreate();
-    sst->fileinfo = sstInfoCreate();
-    sst->metas = sstIndexCreate();
-    sst->bloom = sstBloomCreate(list->items,BLOOM_P);
-    if (!sst->trailer || !sst->fileinfo || !sst->metas || !sst->bloom) {
-        ssTableDestroy(sst);
-        return(NULL);
-    }
+    if (!list || list->items == 0 || !sst)
+        return(-1);
+
+    aof_flag = memTableControl(list,AOF_OFF);
+
+    if (sst->trailer == NULL)
+        sst->trailer = sstTrailerCreate();
+    if (sst->fileinfo == NULL)
+        sst->fileinfo = sstInfoCreate();
+    if (sst->metas == NULL)
+        sst->metas = sstIndexCreate();
+    if (sst->bloom == NULL)
+        sst->bloom = sstBloomCreate(list->items,BLOOM_P);
+
+    if (!sst->trailer || !sst->fileinfo || !sst->metas || !sst->bloom)
+        return(-1);
+
     for (curEntry = memTableHeader(list); curEntry != NULL; curEntry = entryNext(curEntry))
         sstBloomInsertKey(sst->bloom,curEntry->key);
     sst->fileinfo->entrycount = list->items;
     sst->fileinfo->lastkey = sdsdup((memTableTailer(list))->key);
-    
+    sst->trailer->timestamp = time(NULL);
     
     int32_t blocksize;
     do {
-        blocksize = BLOCK_SIZE;
+        /* Each Data block contains one or more entries. */
+        blocksize = _BLOCK_SIZE;
         curEntry = memTableHeader(list);
         if ((curMeta = metaCreate()) == NULL)
             continue;
@@ -221,16 +296,16 @@ SST *memTableDumpToSStable(MET *list)
         sstIndexInsertMeta(sst->metas,curMeta);
         sst->fileinfo->blockcount++;
     } while (curEntry != NULL);
-    
-    sst->trailer->timestamp = time(NULL);
+
     do {
-        snprintf(sst->s_name,PATH_MAX,"%ld.sst",time(NULL));
-        sstfd = open(sst->s_name,O_WRONLY|O_APPEND|O_CREAT|O_EXCL,0644);
+        sstfd = open(sst->s_name,O_WRONLY|O_APPEND);
     } while (sstfd < 0);
+
     for (curMeta = sstIndexHeader(sst->metas); curMeta != NULL; curMeta = metaNext(curMeta)) {
         curMeta->offset = lseek(sstfd,0,SEEK_CUR);
         curMeta->blocksize = sstBlockDumpIntoSStable(sstfd,curMeta->offset,curMeta->block);
     }
+
     sst->trailer->indexoffset = lseek(sstfd,0,SEEK_CUR);
     sst->trailer->indexsize = sstIndexDumpIntoSStable(sstfd,sst->trailer->indexoffset,sst->metas);
     sst->trailer->bloomoffset = lseek(sstfd,0,SEEK_CUR);
@@ -239,48 +314,44 @@ SST *memTableDumpToSStable(MET *list)
     sst->trailer->infosize = sstInfoDumpIntoSStable(sstfd,sst->trailer->infooffset,sst->fileinfo);
     sstTrailerDumpIntoSStable(sstfd,lseek(sstfd,0,SEEK_CUR),sst->trailer);
     close(sstfd);
-    return(sst);
+
+    snprintf(aof_fileLink,_PATH_MAX,"/proc/self/fd/%d",list->aof_fd);
+    aof_fileName[readlink(aof_fileLink,aof_fileName,_PATH_MAX - 1)] = 0;
+    remove(aof_fileName);
+    naof_fd = open(aof_fileName,O_WRONLY|O_CREAT,0644);
+    dup2(naof_fd,list->aof_fd);
+    memTableControl(list,aof_flag);
+
+    return(0);
 }
 
-
-/*
- * Memtable Test Case
- *
-
-int32_t main(int32_t argc, int8_t **argv)
+int32_t aofileLoadToMemtable(MET *list, int32_t aof_fd)
 {
-    MET *list;
-    SST *sst;
-    int32_t i,n;
-    entry_t *o;
-    int8_t buffer[KEY_MAX];
-    int32_t count_o,count_e;
-    
-    
-    if (argc != 2)
+    entry_t *node;
+    int32_t aof_flag;
+    struct stat aof_stat;
+    int8_t *aof_ptr, *buffer;
+
+    fstat(aof_fd,&aof_stat);
+    if ((buffer = mmap(NULL,aof_stat.st_size,PROT_READ,MAP_PRIVATE,aof_fd,0)) == NULL)
         return(-1);
-    n = atoi(argv[1]);
-    count_o = count_e = 0;
-    list = memTableCreate();
-
-	for (i = 1; i <= n; i++) {
-	    o = entryCreate();
-		snprintf(buffer,KEY_MAX,"%20d",i);
-		o->key = sdsnew(buffer);
-		snprintf(buffer,KEY_MAX,"value = %32d",i);
-		o->value = sdsnew(buffer);
-		if (0 == memTableInsertEntry(list,o))
-			count_o++;
-		else
-			count_e++;
-		if (i % 10000 == 0) {
-			fprintf(stderr,"random-write finished %d ops\r",i);
-			fflush(stderr);
-		}
-	}
-	sst = memTableDumpToSStable(list);
-	memTableDestroy(list);
-	ssTableClose(sst);
+    else
+        aof_ptr = buffer;
+    aof_flag = memTableControl(list,AOF_OFF);
+    while (aof_ptr - buffer < aof_stat.st_size) {
+        do {
+            node = entryCreate();
+        } while (node == NULL);
+        node->key = sdsdup(aof_ptr + sizeof(int32_t));
+        aof_ptr = aof_ptr + sdslen(node->key) + sizeof(int32_t);
+        node->value = sdsdup(aof_ptr + sizeof(int32_t));
+        aof_ptr = aof_ptr + sdslen(node->value) + sizeof(int32_t);
+        memTableInsertEntry(list,node);
+    }
+    munmap(buffer,aof_stat.st_size);
+    list->aof_fd = aof_fd;
+    list->aof_flag = AOF_ON;
+    lseek(list->aof_fd,0,SEEK_END);
+    memTableControl(list,aof_flag);
+    return(0);
 }
-
- */

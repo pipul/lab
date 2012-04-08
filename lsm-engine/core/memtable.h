@@ -32,31 +32,55 @@
 #ifndef __HABLE_H_
 #define __HABLE_H_
 
+
+#include "lsm.h"
 #include "sstable.h"
-#include "utils.h"
-
-typedef struct memtable {
-	int32_t items;
-	entry_t *_head;
-	int32_t maxlevel;
-	int32_t (*compareEntry)(entry_t *, entry_t *);
-} MET;
-
-MET *memTableCreate(void);
-void memTableFree(MET *list);
-void memTableDestroy(MET *list);
-
-entry_t *memTableHeader(MET *list);
-entry_t *memTableTailer(MET *list);
-entry_t *memTableFind(MET *list, sds key);
-
-int32_t memTableInsertEntry(MET *list, entry_t *node);
-int32_t memTableDeleteEntry(MET *list, entry_t *node);
 
 
-SST *memTableDumpToSStable(MET *list);
+#ifndef __LSM_H_
+
+    typedef struct memtable {
+        int32_t items;
+        entry_t *_head;
+        int32_t maxlevel;
+        int32_t aof_fd;
+        int32_t aof_flag;
+    #define AOF_ON      0x01
+    #define AOF_OFF     0x02
+    #define AOF_SYNC    0x04
+        struct {
+            int32_t len;
+            int32_t free;
+            int8_t *data;
+        } aof_buf;
+    #define AOF_BUFFERSIZE 4096
+        int32_t timestamp;
+        int32_t (*compareEntry)(entry_t *, entry_t *);
+    } MET;
+
+    MET *memTableCreate(int32_t flag, ...);
+    void memTableDestroy(MET *list);
+    int32_t memTableControl(MET *list, int32_t flag);
+
+    entry_t *memTableHeader(MET *list);
+    entry_t *memTableTailer(MET *list);
+    entry_t *memTableFind(MET *list, sds key);
+
+    int32_t memTableInsertEntry(MET *list, entry_t *node);
+    int32_t memTableDeleteEntry(MET *list, entry_t *node);
 
 
+    int32_t memTableDumpToSStable(MET *list, SST *sst);
+    int32_t aofileLoadToMemtable(MET *list, int32_t aof_fd);
+
+#endif
+
+#ifdef __LSM_H_
+
+    entry_t *memTableHeader(MET *list);
+    entry_t *memTableTailer(MET *list);
+    
+#endif
 
 
 
