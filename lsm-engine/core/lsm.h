@@ -280,6 +280,7 @@ int32_t memTableDumpToSStable(MET *list, SST *sst);
  * Warning: list also is an in/out parameters.
  * an empty MET object which must be created by memTableCreate()
  */
+
 int32_t aofileLoadToMemtable(MET *list, int32_t aof_fd);
 
 

@@ -142,7 +142,8 @@ entry_t *memTableFind(MET *list, sds key)
     tmpNode.key = key;
     curNode = list->_head;
     for (i = list->maxlevel - 1; i >= 0; i--)
-        while (curNode->forward[i] != NULL && list->compareEntry(curNode->forward[i],&tmpNode) < 0)
+        while (curNode->forward[i] != NULL &&
+         list->compareEntry(curNode->forward[i],&tmpNode) < 0)
             curNode = curNode->forward[i];
     curNode = curNode->forward[0];
     if (list->compareEntry(curNode,&tmpNode) == 0)
@@ -177,7 +178,8 @@ int32_t memTableInsertEntry(MET *list, entry_t *node)
 
     curNode = list->_head;
     for (i = list->maxlevel - 1; i >= 0; i--) {
-        while (curNode->forward[i] != NULL && list->compareEntry(curNode->forward[i],node) < 0)
+        while (curNode->forward[i] != NULL &&
+         list->compareEntry(curNode->forward[i],node) < 0)
             curNode = curNode->forward[i];
         update[i] = curNode;
     }
@@ -217,7 +219,8 @@ int32_t memTableDeleteEntry(MET *list, entry_t *node)
     
     curNode = list->_head;
     for (i = list->maxlevel - 1; i >= 0; i--) {
-        while (curNode->forward[i] != NULL && list->compareEntry(curNode->forward[i],node) < 0)
+        while (curNode->forward[i] != NULL &&
+         list->compareEntry(curNode->forward[i],node) < 0)
             curNode = curNode->forward[i];
         update[i] = curNode;
     }
@@ -265,7 +268,8 @@ int32_t memTableDumpToSStable(MET *list, SST *sst)
     if (!sst->trailer || !sst->fileinfo || !sst->metas || !sst->bloom)
         return(-1);
 
-    for (curEntry = memTableHeader(list); curEntry != NULL; curEntry = entryNext(curEntry))
+    for (curEntry = memTableHeader(list);
+     curEntry != NULL; curEntry = entryNext(curEntry))
         sstBloomInsertKey(sst->bloom,curEntry->key);
     sst->fileinfo->entrycount = list->items;
     sst->fileinfo->lastkey = sdsdup((memTableTailer(list))->key);
@@ -304,17 +308,22 @@ int32_t memTableDumpToSStable(MET *list, SST *sst)
         sstfd = open(sst->s_name,O_WRONLY|O_APPEND);
     } while (sstfd < 0);
 
-    for (curMeta = sstIndexHeader(sst->metas); curMeta != NULL; curMeta = metaNext(curMeta)) {
+    for (curMeta = sstIndexHeader(sst->metas);
+     curMeta != NULL; curMeta = metaNext(curMeta)) {
         curMeta->offset = lseek(sstfd,0,SEEK_CUR);
-        curMeta->blocksize = sstBlockDumpIntoSStable(sstfd,curMeta->offset,curMeta->block);
+        curMeta->blocksize =
+         sstBlockDumpIntoSStable(sstfd,curMeta->offset,curMeta->block);
     }
 
     sst->trailer->indexoffset = lseek(sstfd,0,SEEK_CUR);
-    sst->trailer->indexsize = sstIndexDumpIntoSStable(sstfd,sst->trailer->indexoffset,sst->metas);
+    sst->trailer->indexsize =
+     sstIndexDumpIntoSStable(sstfd,sst->trailer->indexoffset,sst->metas);
     sst->trailer->bloomoffset = lseek(sstfd,0,SEEK_CUR);
-    sst->trailer->bloomsize = sstBloomDumpIntoSStable(sstfd,sst->trailer->bloomoffset,sst->bloom);
+    sst->trailer->bloomsize =
+     sstBloomDumpIntoSStable(sstfd,sst->trailer->bloomoffset,sst->bloom);
     sst->trailer->infooffset = lseek(sstfd,0,SEEK_CUR);
-    sst->trailer->infosize = sstInfoDumpIntoSStable(sstfd,sst->trailer->infooffset,sst->fileinfo);
+    sst->trailer->infosize =
+     sstInfoDumpIntoSStable(sstfd,sst->trailer->infooffset,sst->fileinfo);
     sstTrailerDumpIntoSStable(sstfd,lseek(sstfd,0,SEEK_CUR),sst->trailer);
     close(sstfd);
 
@@ -322,6 +331,7 @@ int32_t memTableDumpToSStable(MET *list, SST *sst)
      * truncated to a zero size. as you see, that is new aof persistence file.
      */
     ftruncate(list->aof_fd,0);
+    lseek(list->aof_fd,0,SEEK_SET);
     memTableControl(list,aof_flag);
 
     return(0);
@@ -335,7 +345,8 @@ int32_t aofileLoadToMemtable(MET *list, int32_t aof_fd)
     int8_t *aof_ptr, *buffer;
 
     fstat(aof_fd,&aof_stat);
-    if ((buffer = mmap(NULL,aof_stat.st_size,PROT_READ,MAP_PRIVATE,aof_fd,0)) == NULL)
+    if ((buffer = mmap(NULL,
+     aof_stat.st_size,PROT_READ,MAP_PRIVATE,aof_fd,0)) == NULL)
         return(-1);
     else
         aof_ptr = buffer;

@@ -649,17 +649,16 @@ sds sdsnul()
 	if ((sh = malloc(sizeof(sdshdr) + 1)) == NULL)
 		return(NULL);
 	memset(sh,0,sizeof(sdshdr));
-//	sh->len = 0;
 	return(sh->data);
 }
 
-sds sdsful()
+sds sdsfull()
 {
 	sdshdr *sh;
-	if ((sh = malloc(sizeof(sdshdr) + KEY_MAX + 1)) == NULL)
+	if ((sh = malloc(sizeof(sdshdr) + _KEY_MAX + 1)) == NULL)
 		return(NULL);
-	memset(sh,0,sizeof(sdshdr) + KEY_MAX + 1);
-	sh->len = KEY_MAX;
+	memset(sh,0,sizeof(sdshdr) + _KEY_MAX + 1);
+	sh->len = _KEY_MAX;
 	return(sh->data);
 }
 

@@ -35,40 +35,39 @@
 
 #include <stdint.h>
 #include <fcntl.h>
+#include "lsm.h"
 
 uint32_t crc32_encode(const int8_t  *buf, int32_t len);
 uint32_t md532_encode(const int8_t  *buf, int32_t len);
 
 
-FILE *stdlog;
-FILE *stdevt;
 
-#define EVT_FILE "HPDB.evt"	/* event file log */
-#define LOG_FILE "HPDB.log"	/* recover log data */
-#define BLOCK_SIZE 40960	/* default blocksize = 1mb */
-#define PATH_MAX 1024
-#define KEY_MAX 1023
+/*
+
+    typedef int8_t * sds;
+
+    typedef struct {
+	    int32_t len;
+	    int8_t  data[];
+    } sdshdr;
 
 
-typedef int8_t * sds;
+    sds sdsnew(int8_t  *src);
+    sds sdsnnew(int8_t *src, int32_t len);
+    void sdsdel(sds s);
+    sds sdsdup(sds s);
+    int32_t sdslen(sds s);
+    int32_t sdscmp(sds s, sds h);
 
-typedef struct {
-	int32_t len;
-	int8_t  data[];
-} sdshdr;
+*/
 
-sds sdsnew(int8_t  *src);
-sds sdsnnew(int8_t *src, int32_t len);
-void sdsdel(sds s);
-sds sdsdup(sds s);
-int32_t sdslen(sds s);
-int32_t sdscmp(sds s, sds h);
 sds sdscat(sds s, int8_t *h);
 sds sdsncat(sds s, int8_t *h, int32_t len);
 sds sdsset(sds s, int32_t c);
 sds sdsnset(sds s, int32_t c, int32_t len);
 sds sdsnul();
-sds sdsful();
+sds sdsfull();
+
 
 
 

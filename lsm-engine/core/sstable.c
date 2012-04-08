@@ -228,7 +228,8 @@ int32_t sstBlockInsertEntry(sstblock_t *list, entry_t *node)
         return(-1);
     curNode = list->_head;
     for (i = list->maxlevel - 1; i >= 0; i--) {
-        while (curNode->forward[i] != NULL && list->compareEntry(curNode->forward[i],node) < 0)
+        while (curNode->forward[i] != NULL &&
+         list->compareEntry(curNode->forward[i],node) < 0)
             curNode = curNode->forward[i];
         update[i] = curNode;
     }
@@ -256,7 +257,8 @@ int32_t sstBlockDeleteEntry(sstblock_t *list, entry_t *node)
         return(-1);
     curNode = list->_head;
     for (i = list->maxlevel - 1; i >= 0; i--) {
-        while (curNode->forward[i] != NULL && list->compareEntry(curNode->forward[i],node) < 0)
+        while (curNode->forward[i] != NULL &&
+         list->compareEntry(curNode->forward[i],node) < 0)
             curNode = curNode->forward[i];
         update[i] = curNode;
     }
@@ -285,7 +287,8 @@ entry_t *sstBlockFind(sstblock_t *list, sds key)
     tmpNode.key = key;
     curNode = list->_head;
     for (i = list->maxlevel - 1; i >= 0; i--)
-        while (curNode->forward[i] != NULL && list->compareEntry(curNode->forward[i],&tmpNode) < 0)
+        while (curNode->forward[i] != NULL &&
+         list->compareEntry(curNode->forward[i],&tmpNode) < 0)
             curNode = curNode->forward[i];
     curNode = curNode->forward[0];
     if (list->compareEntry(curNode,&tmpNode) == 0)
@@ -526,7 +529,8 @@ int32_t sstIndexInsertMeta(sstindex_t *list, meta_t *node)
 
     curNode = list->_head;
     for (i = list->maxlevel - 1; i >= 0; i--) {
-        while (curNode->forward[i] != NULL && list->compareMeta(curNode->forward[i],node) < 0)
+        while (curNode->forward[i] != NULL &&
+         list->compareMeta(curNode->forward[i],node) < 0)
             curNode = curNode->forward[i];
         update[i] = curNode;
     }
@@ -551,7 +555,8 @@ int32_t sstIndexDeleteMeta(sstindex_t *list, meta_t *node)
         return(-1);
     curNode = list->_head;
     for (i = list->maxlevel - 1; i >= 0; i--) {
-        while (curNode->forward[i] != NULL && list->compareMeta(curNode->forward[i],node) < 0)
+        while (curNode->forward[i] != NULL &&
+         list->compareMeta(curNode->forward[i],node) < 0)
             curNode = curNode->forward[i];
         update[i] = curNode;
     }
@@ -580,7 +585,8 @@ meta_t *sstIndexFind(sstindex_t *list, sds key)
     curNode = list->_head;
     tmpNode.key = key;
     for (i = list->maxlevel - 1; i >= 0; i--)
-        while (curNode->forward[i] != NULL && list->compareMeta(curNode->forward[i],&tmpNode) <= 0)
+        while (curNode->forward[i] != NULL &&
+         list->compareMeta(curNode->forward[i],&tmpNode) <= 0)
             curNode = curNode->forward[i];
     if (curNode != list->_head)
         return(curNode);
@@ -933,7 +939,8 @@ int32_t sstInfoDumpIntoSStable(int32_t fd, int32_t offset, sstinfo_t *ssi)
     ptr = ptr + sizeof(int32_t);
     memcpy(ptr,&ssi->entrycount,sizeof(int32_t));
     ptr = ptr + sizeof(int32_t);
-    memcpy(ptr,ssi->lastkey - sizeof(sdshdr),sdslen(ssi->lastkey) + sizeof(int32_t));
+    memcpy(ptr,
+     ssi->lastkey - sizeof(sdshdr), sdslen(ssi->lastkey) + sizeof(int32_t));
 
     ptr = buffer + sizeof(uint64_t);
     *(uint64_t *)buffer = crc32_encode(ptr,size - sizeof(uint64_t));
@@ -1054,29 +1061,29 @@ SST *ssTableOpen(const int8_t *sstname, int32_t flags, ...)
             ssTableFree(sst);
             return(NULL);
         }
-        sst->trailer =
-         sstTrailerLoadFromSStable(sstfd,-sizeof(ssttrailer_t),sizeof(ssttrailer_t));
+        sst->trailer = sstTrailerLoadFromSStable(
+         sstfd,-sizeof(ssttrailer_t),sizeof(ssttrailer_t));
         if (sst->trailer == NULL) {
             ssTableFree(sst);
             close(sstfd);
             return(NULL);
         }
-        sst->fileinfo =
-         sstInfoLoadFromSStable(sstfd,sst->trailer->infooffset,sst->trailer->infosize);
+        sst->fileinfo = sstInfoLoadFromSStable(
+         sstfd,sst->trailer->infooffset,sst->trailer->infosize);
         if (sst->fileinfo == NULL) {
             ssTableDestroy(sst);
             close(sstfd);
             return(NULL);
         }
-        sst->metas =
-         sstIndexLoadFromSStable(sstfd,sst->trailer->indexoffset,sst->trailer->indexsize);
+        sst->metas = sstIndexLoadFromSStable(
+         sstfd,sst->trailer->indexoffset,sst->trailer->indexsize);
         if (sst->metas == NULL) {
             ssTableDestroy(sst);
             close(sstfd);
             return(NULL);
         }
-        sst->bloom =
-         sstBloomLoadFromSStable(sstfd,sst->trailer->bloomoffset,sst->trailer->bloomsize);
+        sst->bloom = sstBloomLoadFromSStable(
+         sstfd,sst->trailer->bloomoffset,sst->trailer->bloomsize);
         if (sst->bloom == NULL) {
 	        ssTableDestroy(sst);
 	        close(sstfd);
@@ -1087,7 +1094,7 @@ SST *ssTableOpen(const int8_t *sstname, int32_t flags, ...)
         va_start(ap,flags);
         mode = va_arg(ap,int32_t);
         va_end(ap);
-        if ((sstfd = open(sst->s_name,O_RDWR|O_APPEND|O_CREAT|O_EXCL,mode)) < 0) {
+        if ((sstfd = open(sst->s_name,O_RDONLY|O_CREAT|O_EXCL,mode)) < 0) {
             ssTableFree(sst);
             return(NULL);
         }
@@ -1119,7 +1126,8 @@ entry_t *ssTableFind(SST *sst, sds key)
     if (curMeta->state != IN_CACHE) {
         if ((sstfd = open(sst->s_name,O_RDONLY)) < 0)
             return(NULL);
-        curMeta->block = sstBlockLoadFromSStable(sstfd,curMeta->offset,curMeta->blocksize);
+        curMeta->block =
+         sstBlockLoadFromSStable(sstfd,curMeta->offset,curMeta->blocksize);
         curMeta->state = IN_CACHE;
         close(sstfd);
     }
@@ -1149,6 +1157,29 @@ int32_t ssTableMerge(SST *sst, SST *ssa, SST *ssb)
     do {
         nsstfd = open(sst->s_name,O_RDWR|O_CREAT|O_APPEND,0644);
     } while (nsstfd < 0);
+
+    /* The Base merge algorithm
+     *
+     * Suppose there are two SStable A and B, being be merged into a new large 
+     * SStable C, each time to remove an entry from A and B and save the entries
+     * pointer to n and m, and then take the loop operation:
+            1. if n == NULL, pick up a min entry from A. as well as B to m.
+            2. compare key(n) and key(m) :
+                2.1 if key(n) < key(m)
+                    insert n into the new sstable C and then make n = NULL.
+                2.2 if key(n) > key(m)
+                    insert m into the new sstable C and then make m = NULL.
+                2.3 if key(n) == key(m), compare time(n) and time(m)
+                    2.3.1 if time(n) < time(m)
+                        this shows that n was expired. n will be given up and
+                        insert m into C.
+                    2.3.2 if time(n) > time(m)
+                        It is similar to above, give up m and insert n into C
+                    2.3.3 time(n) == time(m) ?
+                        Impossible, the typical logic error. 
+            3. continue loop.
+     */
+
     
     Ameta = sstIndexHeader(ssa->metas);
     Bmeta = sstIndexHeader(ssb->metas);
@@ -1172,7 +1203,8 @@ int32_t ssTableMerge(SST *sst, SST *ssa, SST *ssb)
                     break;
                 if (Ameta->state != IN_CACHE) {
                     sstfd = open(ssa->s_name,O_RDONLY);
-                    Ameta->block = sstBlockLoadFromSStable(sstfd,Ameta->offset,Ameta->blocksize);
+                    Ameta->block = sstBlockLoadFromSStable(
+                     sstfd, Ameta->offset, Ameta->blocksize);
                     Ameta->state = IN_CACHE;
                     close(sstfd);
                 }
@@ -1190,7 +1222,8 @@ int32_t ssTableMerge(SST *sst, SST *ssa, SST *ssb)
                     break;
                 if (Bmeta->state != IN_CACHE) {
                     sstfd = open(ssb->s_name,O_RDONLY);
-                    Bmeta->block = sstBlockLoadFromSStable(sstfd,Bmeta->offset,Bmeta->blocksize);
+                    Bmeta->block = sstBlockLoadFromSStable(
+                     sstfd, Bmeta->offset, Bmeta->blocksize);
                     Bmeta->state = IN_CACHE;
                     close(sstfd);
                 }
@@ -1312,34 +1345,49 @@ int32_t ssTableSplit(SST *sst, SST *ssa, SST *ssb)
         return(-1);
     }
 
+    /* SStable file split operaton, do not involve data processing, because
+     * the sequence of key/value pairs in the sstable are stored in sorted
+     * order and partitioned into a sequence of data blocks. It just similar
+     * to cut a watermelon in half.
+     */
+
+
     sstfd = open(sst->s_name,O_RDONLY);
 
     ssafd = open(ssa->s_name,O_RDWR|O_CREAT,0644);
     for (i = 0; i < (sst->fileinfo->blockcount) >> 1; i++) {
         curMeta = sstIndexHeader(sst->metas);
         sstIndexDeleteMeta(sst->metas,curMeta);        
-        sendfile(sstfd,curMeta->offset,ssafd,lseek(ssafd,0,SEEK_CUR),curMeta->blocksize);
+        sendfile(sstfd,
+         curMeta->offset,ssafd,lseek(ssafd,0,SEEK_CUR),curMeta->blocksize);
         curMeta->offset = lseek(ssafd,0,SEEK_CUR) - curMeta->blocksize;
         sstIndexInsertMeta(ssa->metas,curMeta);
     }
-    for (curMeta = sstIndexHeader(ssa->metas) ; curMeta != NULL; curMeta = metaNext(curMeta)) {
+    for (curMeta = sstIndexHeader(ssa->metas);
+     curMeta != NULL; curMeta = metaNext(curMeta)) {
         if (curMeta->state != IN_CACHE)
-            curMeta->block = sstBlockLoadFromSStable(ssafd,curMeta->offset,curMeta->blocksize);
+            curMeta->block =
+             sstBlockLoadFromSStable(ssafd,curMeta->offset,curMeta->blocksize);
         sstBloomInsertKeySets(ssa->bloom,curMeta->block);
         ssa->fileinfo->blockcount++;
-        ssa->fileinfo->entrycount = ssa->fileinfo->entrycount + curMeta->block->_count;
+        ssa->fileinfo->entrycount =
+         ssa->fileinfo->entrycount + curMeta->block->_count;
         if (NULL == metaNext(curMeta))
-            ssa->fileinfo->lastkey = sdsdup((sstBlockTailer(curMeta->block))->key);
+            ssa->fileinfo->lastkey =
+             sdsdup((sstBlockTailer(curMeta->block))->key);
         sstBlockDestroy(curMeta->block);
         curMeta->state = IN_DISK;
         curMeta->block = NULL;
     }
     ssa->trailer->indexoffset = lseek(ssafd,0,SEEK_CUR);
-    ssa->trailer->indexsize = sstIndexDumpIntoSStable(ssafd,ssa->trailer->indexoffset,ssa->metas);
+    ssa->trailer->indexsize =
+     sstIndexDumpIntoSStable(ssafd,ssa->trailer->indexoffset,ssa->metas);
     ssa->trailer->bloomoffset = lseek(ssafd,0,SEEK_CUR);
-    ssa->trailer->bloomsize = sstBloomDumpIntoSStable(ssafd,ssa->trailer->bloomoffset,ssa->bloom);
+    ssa->trailer->bloomsize =
+     sstBloomDumpIntoSStable(ssafd,ssa->trailer->bloomoffset,ssa->bloom);
     ssa->trailer->infooffset = lseek(ssafd,0,SEEK_CUR);
-    ssa->trailer->infosize = sstInfoDumpIntoSStable(ssafd,ssa->trailer->infooffset,ssa->fileinfo);
+    ssa->trailer->infosize =
+     sstInfoDumpIntoSStable(ssafd,ssa->trailer->infooffset,ssa->fileinfo);
     sstTrailerDumpIntoSStable(ssafd,lseek(ssafd,0,SEEK_CUR),ssa->trailer);
     close(ssafd);
     
@@ -1347,28 +1395,36 @@ int32_t ssTableSplit(SST *sst, SST *ssa, SST *ssb)
     for ( ; i < sst->fileinfo->blockcount; i++) {
         curMeta = sstIndexHeader(sst->metas);
         sstIndexDeleteMeta(sst->metas,curMeta);
-        sendfile(sstfd,curMeta->offset,ssbfd,lseek(ssbfd,0,SEEK_CUR),curMeta->blocksize);
+        sendfile(sstfd,
+         curMeta->offset,ssbfd,lseek(ssbfd,0,SEEK_CUR),curMeta->blocksize);
         curMeta->offset = lseek(ssbfd,0,SEEK_CUR) - curMeta->blocksize;
         sstIndexInsertMeta(ssb->metas,curMeta);
     }
-    for (curMeta = sstIndexHeader(ssb->metas) ; curMeta != NULL; curMeta = metaNext(curMeta)) {
+    for (curMeta = sstIndexHeader(ssb->metas);
+     curMeta != NULL; curMeta = metaNext(curMeta)) {
         if (curMeta->state != IN_CACHE)
-            curMeta->block = sstBlockLoadFromSStable(ssbfd,curMeta->offset,curMeta->blocksize);
+            curMeta->block =
+             sstBlockLoadFromSStable(ssbfd,curMeta->offset,curMeta->blocksize);
         sstBloomInsertKeySets(ssb->bloom,curMeta->block);
         ssb->fileinfo->blockcount++;
-        ssb->fileinfo->entrycount = ssb->fileinfo->entrycount + curMeta->block->_count;
+        ssb->fileinfo->entrycount =
+         ssb->fileinfo->entrycount + curMeta->block->_count;
         if (NULL == metaNext(curMeta))
-            ssb->fileinfo->lastkey = sdsdup((sstBlockTailer(curMeta->block))->key);
+            ssb->fileinfo->lastkey =
+             sdsdup((sstBlockTailer(curMeta->block))->key);
         sstBlockDestroy(curMeta->block);
         curMeta->state = IN_DISK;
         curMeta->block = NULL;
     }
     ssb->trailer->indexoffset = lseek(ssbfd,0,SEEK_CUR);
-    ssb->trailer->indexsize = sstIndexDumpIntoSStable(ssbfd,ssb->trailer->indexoffset,ssb->metas);
+    ssb->trailer->indexsize =
+     sstIndexDumpIntoSStable(ssbfd,ssb->trailer->indexoffset,ssb->metas);
     ssb->trailer->bloomoffset = lseek(ssbfd,0,SEEK_CUR);
-    ssb->trailer->bloomsize = sstBloomDumpIntoSStable(ssbfd,ssb->trailer->bloomoffset,ssb->bloom);
+    ssb->trailer->bloomsize =
+     sstBloomDumpIntoSStable(ssbfd,ssb->trailer->bloomoffset,ssb->bloom);
     ssb->trailer->infooffset = lseek(ssbfd,0,SEEK_CUR);
-    ssb->trailer->infosize = sstInfoDumpIntoSStable(ssbfd,ssb->trailer->infooffset,ssb->fileinfo);
+    ssb->trailer->infosize =
+     sstInfoDumpIntoSStable(ssbfd,ssb->trailer->infooffset,ssb->fileinfo);
     sstTrailerDumpIntoSStable(ssbfd,lseek(ssbfd,0,SEEK_CUR),ssb->trailer);
     close(ssbfd);
     return(0);
