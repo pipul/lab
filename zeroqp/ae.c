@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 #include "ae.h"
 
 EL *el_open()
@@ -60,9 +61,10 @@ int32_t el_start(EL *el, int32_t flag)
                 rf = 1;
                 e->rcb(el,ee->data.fd,e->data,mask);
             }
-            if (e->mask & mask & AE_WRITABLE)
+            if (e->mask & mask & AE_WRITABLE) {
                 if (rf != 1 || e->rcb != e->wcb)
                     e->wcb(el,ee->data.fd,e->data,mask);
+			}
         }
     }
     return(AE_OK);

@@ -4,7 +4,9 @@ CFLAGS = -g
 LIB_OBJS = \
 	./ae.o	\
 	./anet.o \
-	./zeroqp.o
+	./zthread.o \
+	./protobuf.o \
+	./zqp.o
 
 LIBRARY = libzeroqp.a
 
