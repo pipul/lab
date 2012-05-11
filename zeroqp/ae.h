@@ -1,7 +1,7 @@
 #ifndef __AE_H_
 #define __AE_H_
 
-#define AE_SETSIZE (1024*10)	/* Max number of fd supported */
+#define AE_SETSIZE (1024*10)    /* Max number of fd supported */
 #define AE_OK 0
 #define AE_ERR -1
 
@@ -19,19 +19,19 @@ typedef void cbfunc(struct eloop *el, int32_t fd, void *argv, int32_t mask);
 
 typedef struct
  asynchronous_event {
-	int32_t mask;
-	cbfunc 	*rcb;	/* read operation call back func */
-	cbfunc 	*wcb;	/* write operation call back func */
-	void 	*data;
+    int32_t mask;
+    cbfunc  *rcb;    /* read operation call back func */
+    cbfunc  *wcb;    /* write operation call back func */
+    void    *data;
 } ae_t;
 
 typedef struct eloop {
-	int32_t efd;
-	int32_t state;
-#define AE_RUN  1
-#define AE_STOP	2
-	ae_t	events[AE_SETSIZE];
-	struct epoll_event ready[AE_SETSIZE];
+    int32_t efd;
+    int32_t state;
+#define AE_RUN   1
+#define AE_STOP  2
+    ae_t events[AE_SETSIZE];
+    struct epoll_event ready[AE_SETSIZE];
 } EL;
 
 EL *el_open(void);

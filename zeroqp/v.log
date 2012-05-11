@@ -1,0 +1,54 @@
+==9434== Memcheck, a memory error detector
+==9434== Copyright (C) 2002-2010, and GNU GPL'd, by Julian Seward et al.
+==9434== Using Valgrind-3.6.0 and LibVEX; rerun with -h for copyright info
+==9434== Command: ./ser
+==9434== Parent PID: 9393
+==9434== 
+--9434-- 
+--9434-- Valgrind options:
+--9434--    -v
+--9434--    --log-file=v.log
+--9434--    --leak-check=full
+--9434--    --show-reachable=yes
+--9434-- Contents of /proc/version:
+--9434--   Linux version 2.6.32-220.13.1.el6.i686 (mockbuild@c6b6.bsys.dev.centos.org) (gcc version 4.4.6 20110731 (Red Hat 4.4.6-3) (GCC) ) #1 SMP Tue Apr 17 22:09:08 BST 2012
+--9434-- Arch and hwcaps: X86, x86-sse1-sse2
+--9434-- Page sizes: currently 4096, max supported 4096
+--9434-- Valgrind library directory: /usr/lib/valgrind
+--9434-- Reading syms from /lib/ld-2.12.so (0x38e000)
+--9434-- Reading syms from /media/projects/works/github/zeroqp/ser (0x8048000)
+--9434-- Reading syms from /usr/lib/valgrind/memcheck-x86-linux (0x38000000)
+--9434--    object doesn't have a dynamic symbol table
+--9434-- Reading suppressions file: /usr/lib/valgrind/default.supp
+--9434-- REDIR: 0x3a57e0 (index) redirected to 0x38040993 (vgPlain_x86_linux_REDIR_FOR_index)
+--9434-- Reading syms from /usr/lib/valgrind/vgpreload_core-x86-linux.so (0x4001000)
+--9434-- Reading syms from /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so (0x4003000)
+==9434== WARNING: new redirection conflicts with existing -- ignoring it
+--9434--     new: 0x003a57e0 (index               ) R-> 0x04007b20 index
+--9434-- REDIR: 0x3a59a0 (strlen) redirected to 0x4007f60 (strlen)
+--9434-- Reading syms from /lib/libc-2.12.so (0x3b0000)
+--9434-- REDIR: 0x427950 (rindex) redirected to 0x40079d0 (rindex)
+--9434-- REDIR: 0x422890 (calloc) redirected to 0x40052c0 (calloc)
+--9434-- REDIR: 0x422b90 (malloc) redirected to 0x4006770 (malloc)
+--9434-- REDIR: 0x4287a0 (memset) redirected to 0x4001420 (_vgnU_ifunc_wrapper)
+--9434-- REDIR: 0x4dc6e0 (__memset_sse2) redirected to 0x4009660 (memset)
+--9434-- REDIR: 0x42a1a0 (strchrnul) redirected to 0x4009760 (strchrnul)
+--9434-- REDIR: 0x4275a0 (__GI_strlen) redirected to 0x4007f40 (__GI_strlen)
+--9434-- REDIR: 0x4237e0 (free) redirected to 0x4006150 (free)
+--9434-- REDIR: 0x426f60 (strcmp) redirected to 0x4001420 (_vgnU_ifunc_wrapper)
+--9434-- REDIR: 0x4e5a30 (__strcmp_ssse3) redirected to 0x4008540 (strcmp)
+--9434-- REDIR: 0x427020 (strcpy) redirected to 0x4007fa0 (strcpy)
+--9434-- REDIR: 0x428d90 (memcpy) redirected to 0x4001420 (_vgnU_ifunc_wrapper)
+--9434-- REDIR: 0x4dd7f0 (__memcpy_ssse3) redirected to 0x4008700 (memcpy)
+==9434== 
+==9434== HEAP SUMMARY:
+==9434==     in use at exit: 0 bytes in 0 blocks
+==9434==   total heap usage: 43 allocs, 43 frees, 328,912 bytes allocated
+==9434== 
+==9434== All heap blocks were freed -- no leaks are possible
+==9434== 
+==9434== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 12 from 8)
+--9434-- 
+--9434-- used_suppression:     12 U1004-ARM-_dl_relocate_object
+==9434== 
+==9434== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 12 from 8)
