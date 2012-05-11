@@ -1,0 +1,89 @@
+==8114== Memcheck, a memory error detector
+==8114== Copyright (C) 2002-2011, and GNU GPL'd, by Julian Seward et al.
+==8114== Using Valgrind-3.7.0 and LibVEX; rerun with -h for copyright info
+==8114== Command: ./dbt db get 0 200
+==8114== Parent PID: 8018
+==8114== 
+--8114-- 
+--8114-- Valgrind options:
+--8114--    --suppressions=/usr/lib/valgrind/debian-libc6-dbg.supp
+--8114--    -v
+--8114--    --log-file=v.log
+--8114--    --leak-check=full
+--8114--    --show-reachable=yes
+--8114-- Contents of /proc/version:
+--8114--   Linux version 3.2.0-23-generic-pae (buildd@palmer) (gcc version 4.6.3 (Ubuntu/Linaro 4.6.3-1ubuntu4) ) #36-Ubuntu SMP Tue Apr 10 22:19:09 UTC 2012
+--8114-- Arch and hwcaps: X86, x86-sse1-sse2
+--8114-- Page sizes: currently 4096, max supported 4096
+--8114-- Valgrind library directory: /usr/lib/valgrind
+--8114-- Reading syms from /lib/i386-linux-gnu/ld-2.15.so (0x4000000)
+--8114--   Considering /lib/i386-linux-gnu/ld-2.15.so ..
+--8114--   .. CRC mismatch (computed 405891ab wanted 9a1d2f37)
+--8114--   Considering /usr/lib/debug/lib/i386-linux-gnu/ld-2.15.so ..
+--8114--   .. CRC is valid
+--8114-- Reading syms from /media/master/work/github/lotusDB/dbt (0x8048000)
+--8114-- Reading syms from /usr/lib/valgrind/memcheck-x86-linux (0x38000000)
+--8114--   Considering /usr/lib/valgrind/memcheck-x86-linux ..
+--8114--   .. CRC mismatch (computed 169814b3 wanted aeba1395)
+--8114--    object doesn't have a symbol table
+--8114--    object doesn't have a dynamic symbol table
+--8114-- Reading suppressions file: /usr/lib/valgrind/debian-libc6-dbg.supp
+--8114-- Reading suppressions file: /usr/lib/valgrind/default.supp
+==8114== embedded gdbserver: reading from /tmp/vgdb-pipe-from-vgdb-to-8114-by-ypfangdong-on-???
+==8114== embedded gdbserver: writing to   /tmp/vgdb-pipe-to-vgdb-from-8114-by-ypfangdong-on-???
+==8114== embedded gdbserver: shared mem   /tmp/vgdb-pipe-shared-mem-vgdb-8114-by-ypfangdong-on-???
+==8114== 
+==8114== TO CONTROL THIS PROCESS USING vgdb (which you probably
+==8114== don't want to do, unless you know exactly what you're doing,
+==8114== or are doing some strange experiment):
+==8114==   /usr/lib/valgrind/../../bin/vgdb --pid=8114 ...command...
+==8114== 
+==8114== TO DEBUG THIS PROCESS USING GDB: start GDB like this
+==8114==   /path/to/gdb ./dbt
+==8114== and then give GDB the following command
+==8114==   target remote | /usr/lib/valgrind/../../bin/vgdb --pid=8114
+==8114== --pid is optional if only one valgrind process is running
+==8114== 
+--8114-- REDIR: 0x40182d0 (strlen) redirected to 0x38056b04 (???)
+--8114-- REDIR: 0x4018050 (index) redirected to 0x38056adf (???)
+--8114-- Reading syms from /usr/lib/valgrind/vgpreload_core-x86-linux.so (0x4025000)
+--8114--   Considering /usr/lib/valgrind/vgpreload_core-x86-linux.so ..
+--8114--   .. CRC mismatch (computed 79fe1296 wanted 94e37e32)
+--8114--    object doesn't have a symbol table
+--8114-- Reading syms from /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so (0x4028000)
+--8114--   Considering /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so ..
+--8114--   .. CRC mismatch (computed 85cd0163 wanted d1841711)
+--8114--    object doesn't have a symbol table
+--8114-- Reading syms from /lib/i386-linux-gnu/libm-2.15.so (0x4047000)
+--8114--   Considering /lib/i386-linux-gnu/libm-2.15.so ..
+--8114--   .. CRC mismatch (computed 25837ae1 wanted 16cba2b6)
+--8114--   Considering /usr/lib/debug/lib/i386-linux-gnu/libm-2.15.so ..
+--8114--   .. CRC is valid
+--8114-- Reading syms from /lib/i386-linux-gnu/libc-2.15.so (0x4073000)
+--8114--   Considering /lib/i386-linux-gnu/libc-2.15.so ..
+--8114--   .. CRC mismatch (computed 232c48e6 wanted b35206fd)
+--8114--   Considering /usr/lib/debug/lib/i386-linux-gnu/libc-2.15.so ..
+--8114--   .. CRC is valid
+--8114-- REDIR: 0x40eeed0 (strnlen) redirected to 0x40254a0 (_vgnU_ifunc_wrapper)
+--8114-- REDIR: 0x40f0420 (strncasecmp) redirected to 0x40254a0 (_vgnU_ifunc_wrapper)
+--8114-- REDIR: 0x40ef070 (__GI_strrchr) redirected to 0x402c1b0 (__GI_strrchr)
+--8114-- REDIR: 0x40eacd0 (malloc) redirected to 0x402be00 (malloc)
+--8114-- REDIR: 0x40ebc90 (calloc) redirected to 0x402a540 (calloc)
+--8114-- REDIR: 0x40f1740 (strchrnul) redirected to 0x402ebe0 (strchrnul)
+--8114-- REDIR: 0x40eb1b0 (free) redirected to 0x402b000 (free)
+--8114-- REDIR: 0x40eee10 (__GI_strlen) redirected to 0x402c670 (__GI_strlen)
+--8114-- REDIR: 0x4107f10 (strstr) redirected to 0x40254a0 (_vgnU_ifunc_wrapper)
+--8114-- REDIR: 0x4107b50 (__GI_strstr) redirected to 0x402f030 (strstr)
+--8114-- REDIR: 0x40f05b0 (memcpy) redirected to 0x40254a0 (_vgnU_ifunc_wrapper)
+--8114-- REDIR: 0x41a4280 (__memcpy_ssse3) redirected to 0x402d930 (memcpy)
+--8114-- REDIR: 0x40efb00 (bcmp) redirected to 0x40254a0 (_vgnU_ifunc_wrapper)
+--8114-- REDIR: 0x41b5760 (__memcmp_ssse3) redirected to 0x402e460 (bcmp)
+==8114== 
+==8114== HEAP SUMMARY:
+==8114==     in use at exit: 0 bytes in 0 blocks
+==8114==   total heap usage: 572 allocs, 572 frees, 58,308 bytes allocated
+==8114== 
+==8114== All heap blocks were freed -- no leaks are possible
+==8114== 
+==8114== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==8114== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
