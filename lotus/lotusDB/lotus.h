@@ -1,3 +1,34 @@
+/* lotus.c - A major header file implementation
+ *
+ * Copyright (c) 2011-2012, FangDong <yp.fangdong@gmail.com>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *   * Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *   * Neither the name of Redis nor the names of its contributors may be used
+ *     to endorse or promote products derived from this software without
+ *     specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
 #ifndef __LSM_H_
 #define __LSM_H_
 
@@ -168,9 +199,10 @@ sst_t *sstable_open(const char *sst_name, int flags);
 #define SST_RDONLY 0x02
 
 int sstable_close(sst_t *st);
-slice_t sstable_lookup(sst_t *st, slice_t key);
+slice_t sstable_lookup(const sst_t *st, slice_t key);
 
-
+int sstable_merge(int stc, sst_t **sts, sst_t **dt);
+int sstable_split(sst_t *st, int dtc, sst_t ***dts);
 
 
 #define _AOT_SUFFIX ".aot"
@@ -195,6 +227,7 @@ int aotable_append(aot_t *at, slice_t key, slice_t value);
 
 #define _SLOTFILE_HINT (100)
 
+#define _L_SSTSIZE(t) ((1<<(24 + t)) - 1)
 
 typedef struct {
     int cap,size;
@@ -257,7 +290,7 @@ typedef struct CPHANDLE {
     sloter_t *cp_slot[_SLOTTAG_MAX];
     int (*close)(struct CPHANDLE *cp);
     sloter_t *(*pcp)(const struct CPHANDLE *cp);
-    sloter_t *(*runcp)(const sloter_t *slt);
+    sloter_t *(*runcp)(const struct CPHANDLE *cp, const sloter_t *slt);
 
 /* inter interface */
     int (*_sst_link)(struct CPHANDLE *cp, char *sst_name);
@@ -268,7 +301,7 @@ CP *cp_open(const char *path);
 
 int _cp_close(CP *cp);
 sloter_t *_cp_pcp(const CP *cp);
-sloter_t *_cp_runcp(const sloter_t *slt);
+sloter_t *_cp_runcp(const CP *cp, const sloter_t *slt);
 
 int __cp_sst_link(CP *cp, char *sst_name);
 int __cp_sst_unlink(CP *cp, char *sst_name);
