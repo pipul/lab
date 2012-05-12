@@ -1,0 +1,50 @@
+zeroqp
+======
+
+zeroqp is a lightweight framework, make the server network programming
+ sample and interesting
+
+This README is just a fast "quick start" document. You can find more detailed
+ documentation at
+http://pipul.org or contect me by this email address: fangdong@pipul.org
+
+Building zeroqp library
+---------------------
+
+It is as simple as:
+
+    % make
+
+NOTE: now zeroqp just support 32bit linux/unix system.
+
+
+Sample test case
+------------------------
+    ......
+    void _set_cmd_exec(int clifd, int argc, slice **argv) {
+        ...
+            fprintf(stderr,"client : %s connected.\n");
+            while (argc) {
+                printf(stderr,"%s\n",argv[argc - 1]);
+                argc--;
+            }
+        ...
+    }
+    ......
+    
+    
+    ......
+	struct zeroqp_service srvlist[] = {
+		{"127.0.0.1",6379,"SET",_set_cmd_exec},
+		{"127.0.0.1",6666,"GET",_get_com_exec},
+		{"127.0.0.1",8888,"PUT",_put_cmd_exec},
+		{"127.0.0.1",8888,"DEL",_del_cmd_exec}
+	};
+
+	zfd = zeroqp_open();
+	for (i = 0; i < 4; i++)
+		zeroqp_ctl(zfd,ZEROQP_CTL_ADD,&srvlist[i]);
+	zeroqp_wait(zfd);
+    ......
+    
+ENJOY!
