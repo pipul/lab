@@ -1,0 +1,22 @@
+body {
+	font: 12px "Tahoma";
+}
+a {
+	color: #333399; 
+	text-decoration: none;
+}
+a:hover {
+	color: #CC0000; 
+}
+input {
+	border:1px solid #aaa;
+	background:#eee;
+}
+#main {
+	background-color: #fff;
+	text-align: left;
+	width: 600px;
+	border: 1px solid #ccc;
+	margin:20px auto;
+	padding:20px 20px;
+}

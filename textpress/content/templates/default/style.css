@@ -1,0 +1,243 @@
+/* CSS Optimization by fangdong on 2011 */
+@font-face{font-family:'monaco';src:url(monaco.ttf);}
+
+* {
+	margin:0;
+	padding:0;
+}
+body {
+	float:left;
+	background:#EBEFF9;
+	font: 14px monaco, Verdana, georgia, sans-serif;	
+	line-height:140%;
+}
+a:link {
+	color: #002f5f;
+	text-decoration:none;
+}
+a:visited {
+	color: #002f5f;
+}
+a:hover {
+	background: #002f5f;
+	color: #fff;
+}
+code {
+	font-family:mocano,"Courier New", Courier;
+	width:620px;
+	border:1px solid #b3cbe1;
+	border-left:3px solid #b3cbe1;
+	background:#f8f8f8;
+	display:block;
+	white-space:normal;
+	margin:5px;
+	padding:10px;
+	overflow:auto;
+}
+fieldset {
+	line-height:25px;
+	padding:10px;
+}
+h1 {
+	font-size: 24px;
+	font-weight: bold;
+	margin:10px 0;
+}
+h2 {
+	font-size: 21px;
+	font-weight: bold;
+	margin:8px 0;
+}
+h3 {
+	margin: 6px;
+	font-size: 18px;
+	font-weight: bold;
+}
+h4 {
+	margin: 4px;
+	font-size: 15px;
+	font-weight: bold;
+}
+
+hr {
+	border-bottom:1px solid #B3CBE1;
+	margin:5px 0;
+}
+input {
+	padding: 2px 2px 2px 2px;
+	vertical-align:middle;
+}
+img {
+	border: 0;
+	vertical-align:middle;
+}
+label {
+	font: 14px Verdana, Tahoma, sans-serif;	
+}
+p {
+	padding:7px 2px 7px 2px;
+}
+select {
+
+}
+#mainpage {	/* 671=649+1+1+10+10 */
+	width: 649px;
+	margin-left: 20px;
+}
+#comment {
+	margin-top: 5px;
+	margin-bottom: 15px;
+}
+#comment .comdate {
+	padding: 3px 0;
+	color:#777;
+	text-align:right;
+	border-bottom: 1px solid #B3CBE1;
+}
+#footer {
+	text-align: right;
+	padding: 5px 5px;
+	clear: both;
+}
+#aboutme {
+	width:100%;
+	margin:20px 0;
+}
+
+
+.attach {
+
+}
+.attach-desc {
+	background:#edf2f8;
+	border:1px solid #386792;
+	padding:5px;
+}
+.codeimg {
+	cursor:pointer;
+	vertical-align:bottom;
+	padding-bottom:1px;
+}
+.content {
+	width: 100%;
+	padding: 0 20px;
+}
+.content .title {
+	
+}
+.content .time {
+	text-align: right;
+}
+
+.linkover {
+	padding:5px 0 5px 0;
+	clear:both;
+}
+.linkover li {
+	color:#666;
+	line-height:20px;
+	float:left;
+	width:300px;
+}
+.needpwd {
+	margin:20px auto;
+}
+.p_bar {
+	margin: 10px 5px;
+}
+.p_num, .p_redirect {
+	border: 1px solid #aaa;
+	margin: 0 3px;
+	padding: 0 5px;
+}
+.p_info, .p_curpage {
+	border: 1px solid #444;
+	margin: 0 3px;
+	padding: 0 5px;
+}
+.p_num:hover, .p_redirect:hover {
+	background: #002F5F;
+	color: #fff;
+}
+
+/* Text elements */
+ul {
+	list-style: square;
+	margin: 0 0 18px 1.5em;
+}
+ol {
+	list-style: decimal;
+	margin: 0 0 18px 1.5em;
+}
+strong {
+	font-weight: bold;
+}
+blockquote {
+	font-style: italic;
+	padding: 0 3em;
+}
+pre {
+	background: #f7f7f7;
+	color: #222;
+	line-height: 18px;
+	margin-bottom: 18px;
+	padding: 1.5em;
+}
+input[type="text"],
+textarea {
+	background: #f9f9f9;
+	border: 1px solid #ccc;
+	box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
+	-moz-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
+	-webkit-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
+	padding: 2px;
+}
+
+/*  friends link  */
+#frlink {
+	width:100%;
+	margin:20px 0;
+}
+#frlink li {
+	color:#666;
+}
+
+/*  post content  */
+#post {
+	width:100%;
+	margin:20px 0;
+}
+#post .posttitle {
+	font-weight: bold;
+	font-size: 20px;
+	border-left:3px solid #C2CFF1;
+	padding:5px 0 5px 10px;
+}
+#post .postdata {
+	margin:10px auto;
+}
+#post .postmeta {
+	text-align:right;
+	padding-bottom:10px;
+	border-bottom:1px solid #B3CBE1;
+	margin:10px auto;
+}
+#post .postnav {
+	text-align:right;
+	font-weight:bold;
+	margin:0 0 10px 0;
+}
+#respond {
+	padding:10px 0 0;
+	font-size:11px;
+}
+#respond .cominfo {
+	margin-bottom:5px;
+}
+
+/*  achives  */
+#archives {
+	width:100%;
+	margin-top:10px;
+	padding-top:10px;
+}

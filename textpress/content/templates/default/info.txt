@@ -1,0 +1,5 @@
+﻿Template Name: r2nu
+Template Version: 1.0.0.1
+Template Description: 默认的主题
+Template Author: pipul.org
+Template Author URL: http://blog.pipul.org
