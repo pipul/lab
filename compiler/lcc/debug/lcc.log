@@ -1,0 +1,764 @@
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 len
+#3    CNSTI4 count=1 3
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 3
+#5      ADDRLP4 count=1 3
+#4     INDIRI4 count=1 #5
+#6     CNSTI4 count=1 1
+#3    ADDI4 count=1 #4 #6
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 v
+#5      ADDRLP4 count=1 len
+#4     INDIRI4 count=1 #5
+#7      ADDRLP4 count=1 v
+#6     INDIRI4 count=1 #7
+#3    ADDI4 count=1 #4 #6
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: ADDI4 2
+#3     ADDRLP4 count=1 len
+#2    INDIRI4 count=1 #3
+#5     ADDRLP4 count=1 v
+#4    INDIRI4 count=1 #5
+#1   ADDI4 count=1 #2 #4
+case3: INDIRI4 2
+#2    ADDRLP4 count=1 len
+#1   INDIRI4 count=1 #2
+case3: INDIRI4 2
+#2    ADDRLP4 count=1 v
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 6
+#4     ADDRLP4 count=1 v
+#3    INDIRI4 count=1 #4
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: INDIRI4 2
+#2    ADDRLP4 count=1 v
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#2    44P count=1 1
+#4     ADDRLP4 count=1 6
+#3    INDIRI4 count=1 #4
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: INDIRI4 2
+#2    ADDRLP4 count=1 6
+#1   INDIRI4 count=1 #2
+case3: EQI4 1
+#3     44P count=1 1
+#2    INDIRI4 count=1 #3
+#4    CNSTI4 count=1 1
+#1   EQI4 count=0 #2 #4 7
+case3: INDIRI4 2
+#2    44P count=1 1
+#1   INDIRI4 count=1 #2
+case3: EQI4 1
+#3     44P count=1 1
+#2    INDIRI4 count=1 #3
+#4    CNSTI4 count=1 2
+#1   EQI4 count=0 #2 #4 8
+case3: INDIRI4 2
+#2    44P count=1 1
+#1   INDIRI4 count=1 #2
+case3: EQI4 1
+#3     44P count=1 1
+#2    INDIRI4 count=1 #3
+#4    CNSTI4 count=1 3
+#1   EQI4 count=0 #2 #4 9
+case3: INDIRI4 2
+#2    44P count=1 1
+#1   INDIRI4 count=1 #2
+case3: JUMPV 1
+#2    ADDRGP4 count=1 4
+#1   JUMPV count=0 #2
+case3: LABELV 1
+#1   LABELV count=0 7
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 v
+#3    CNSTI4 count=1 1
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: JUMPV 1
+#2    ADDRGP4 count=1 5
+#1   JUMPV count=0 #2
+case3: LABELV 1
+#1   LABELV count=0 8
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 v
+#3    CNSTI4 count=1 2
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: JUMPV 1
+#2    ADDRGP4 count=1 5
+#1   JUMPV count=0 #2
+case3: LABELV 1
+#1   LABELV count=0 9
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 v
+#3    CNSTI4 count=1 4
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: JUMPV 1
+#2    ADDRGP4 count=1 5
+#1   JUMPV count=0 #2
+case3: LABELV 1
+#1   LABELV count=0 4
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 v
+#3    CNSTI4 count=1 0
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: LABELV 1
+#1   LABELV count=0 5
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 v
+#5      ADDRLP4 count=1 v
+#4     INDIRI4 count=1 #5
+#6     CNSTI4 count=1 1
+#3    ADDI4 count=1 #4 #6
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: ASGNB 1
+#3     ADDRFP4 count=1 2
+#2    INDIRP4 count=1 #3
+#5     ADDRLP4 count=1 v
+#4    INDIRB count=1 #5
+#1   ASGNB count=0 #2 #4 16 4
+case3: INDIRP4 2
+#2    ADDRFP4 count=1 2
+#1   INDIRP4 count=1 #2
+case3: ADDRLP4 2
+#1   ADDRLP4 count=1 v
+case3: LABELV 1
+#1   LABELV count=0 1
+case3: RETI4 1
+#4      ADDRFP4 count=1 a
+#3     INDIRI4 count=1 #4
+#6      ADDRFP4 count=1 b
+#5     INDIRI4 count=1 #6
+#2    ADDI4 count=1 #3 #5
+#1   RETI4 count=0 #2
+case3: ADDI4 2
+#3     ADDRFP4 count=1 a
+#2    INDIRI4 count=1 #3
+#5     ADDRFP4 count=1 b
+#4    INDIRI4 count=1 #5
+#1   ADDI4 count=1 #2 #4
+case3: INDIRI4 2
+#2    ADDRFP4 count=1 a
+#1   INDIRI4 count=1 #2
+case3: INDIRI4 2
+#2    ADDRFP4 count=1 b
+#1   INDIRI4 count=1 #2
+case3: LABELV 1
+#1   LABELV count=0 11
+case3: ARGI4 1
+#2    CNSTI4 count=1 1
+#1   ARGI4 count=0 #2 4 4
+case3: ARGI4 1
+#3     ADDRFP4 count=1 v
+#2    INDIRI4 count=1 #3
+#1   ARGI4 count=0 #2 4 4
+case3: ASGNI4 1
+#2    44P count=1 1
+#5      ADDRGP4 count=1 sum
+#4     CALLI4 count=2 #5 {int}
+#3    *LOAD*I4 count=0 #4 8
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: *LOAD*I4 2
+#3     ADDRGP4 count=1 sum
+#2    CALLI4 count=2 #3 {int}
+#1   *LOAD*I4 count=0 #2 8
+case3: CALLI4 2
+#2    ADDRGP4 count=1 sum
+#1   CALLI4 count=2 #2 {int}
+case3: ARGI4 1
+#3     44P count=1 1
+#2    INDIRI4 count=1 #3
+#1   ARGI4 count=0 #2 4 4
+case3: INDIRI4 2
+#2    44P count=1 1
+#1   INDIRI4 count=1 #2
+case3: ARGP4 1
+#2    ADDRGP4 count=1 14
+#1   ARGP4 count=0 #2 4 4
+case3: CALLI4 2
+#2    ADDRGP4 count=1 printf
+#1   CALLI4 count=0 #2 {int}
+case3: RETI4 1
+#2    CNSTI4 count=1 0
+#1   RETI4 count=0 #2
+case3: CNSTI4 2
+#1   CNSTI4 count=1 0
+case3: LABELV 1
+#1   LABELV count=0 13
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 r
+#3    CNSTI4 count=1 0
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: LABELV 1
+#1   LABELV count=0 17
+case3: ASGNI4 1
+#2    44P count=1 1
+#4     ADDRLP4 count=1 r
+#3    INDIRI4 count=1 #4
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: INDIRI4 2
+#2    ADDRLP4 count=1 r
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#2    44P count=1 2
+#3    CNSTI4 count=1 2
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: ASGNI4 1
+#2    44P count=1 3
+#3    CNSTI4 count=1 0
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: EQI4 1
+#6        44P count=1 1
+#5       INDIRI4 count=1 #6
+#8        44P count=1 2
+#7       INDIRI4 count=1 #8
+#4      LSHI4 count=1 #5 #7
+#9      ADDRGP4 count=1 rows
+#3     ADDP4 count=1 #4 #9
+#2    INDIRI4 count=1 #3
+#11    44P count=1 3
+#10   INDIRI4 count=1 #11
+#1   EQI4 count=0 #2 #10 21
+case3: INDIRI4 2
+#2    44P count=1 1
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#2    44P count=1 4
+#4     ADDRFP4 count=1 c
+#3    INDIRI4 count=1 #4
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: INDIRI4 2
+#2    ADDRFP4 count=1 c
+#1   INDIRI4 count=1 #2
+case3: EQI4 1
+#7         44P count=1 1
+#6        INDIRI4 count=1 #7
+#9         44P count=1 4
+#8        INDIRI4 count=1 #9
+#5       SUBI4 count=1 #6 #8
+#11       44P count=1 2
+#10      INDIRI4 count=1 #11
+#4      LSHI4 count=1 #5 #10
+#12     ADDRGP4 count=1 23
+#3     ADDP4 count=1 #4 #12
+#2    INDIRI4 count=1 #3
+#14    44P count=1 3
+#13   INDIRI4 count=1 #14
+#1   EQI4 count=0 #2 #13 21
+case3: SUBI4 2
+#3     44P count=1 1
+#2    INDIRI4 count=1 #3
+#5     44P count=1 4
+#4    INDIRI4 count=1 #5
+#1   SUBI4 count=1 #2 #4
+case3: INDIRI4 2
+#2    44P count=1 1
+#1   INDIRI4 count=1 #2
+case3: INDIRI4 2
+#2    44P count=1 4
+#1   INDIRI4 count=1 #2
+case3: EQI4 1
+#7         44P count=1 1
+#6        INDIRI4 count=1 #7
+#9         44P count=1 4
+#8        INDIRI4 count=1 #9
+#5       ADDI4 count=1 #6 #8
+#11       44P count=1 2
+#10      INDIRI4 count=1 #11
+#4      LSHI4 count=1 #5 #10
+#12     ADDRGP4 count=1 down
+#3     ADDP4 count=1 #4 #12
+#2    INDIRI4 count=1 #3
+#14    44P count=1 3
+#13   INDIRI4 count=1 #14
+#1   EQI4 count=0 #2 #13 21
+case3: ADDI4 2
+#3     44P count=1 1
+#2    INDIRI4 count=1 #3
+#5     44P count=1 4
+#4    INDIRI4 count=1 #5
+#1   ADDI4 count=1 #2 #4
+case3: INDIRI4 2
+#2    44P count=1 1
+#1   INDIRI4 count=1 #2
+case3: INDIRI4 2
+#2    44P count=1 4
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#2    44P count=1 5
+#4     ADDRLP4 count=1 r
+#3    INDIRI4 count=1 #4
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: INDIRI4 2
+#2    ADDRLP4 count=1 r
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#2    44P count=1 6
+#4     ADDRFP4 count=1 c
+#3    INDIRI4 count=1 #4
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: INDIRI4 2
+#2    ADDRFP4 count=1 c
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#2    44P count=1 7
+#3    CNSTI4 count=1 2
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: ASGNI4 1
+#2    44P count=1 8
+#3    CNSTI4 count=1 0
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: ASGNI4 1
+#6        44P count=1 5
+#5       INDIRI4 count=1 #6
+#8        44P count=1 6
+#7       INDIRI4 count=1 #8
+#4      ADDI4 count=1 #5 #7
+#10      44P count=1 7
+#9      INDIRI4 count=1 #10
+#3     LSHI4 count=1 #4 #9
+#11    ADDRGP4 count=1 down
+#2    ADDP4 count=1 #3 #11
+#13    44P count=1 8
+#12   INDIRI4 count=1 #13
+#1   ASGNI4 count=0 #2 #12 4 4
+case3: ADDI4 2
+#3     44P count=1 5
+#2    INDIRI4 count=1 #3
+#5     44P count=1 6
+#4    INDIRI4 count=1 #5
+#1   ADDI4 count=1 #2 #4
+case3: INDIRI4 2
+#2    44P count=1 5
+#1   INDIRI4 count=1 #2
+case3: INDIRI4 2
+#2    44P count=1 6
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#6        44P count=1 5
+#5       INDIRI4 count=1 #6
+#8        44P count=1 6
+#7       INDIRI4 count=1 #8
+#4      SUBI4 count=1 #5 #7
+#10      44P count=1 7
+#9      INDIRI4 count=1 #10
+#3     LSHI4 count=1 #4 #9
+#11    ADDRGP4 count=1 24
+#2    ADDP4 count=1 #3 #11
+#13    44P count=1 8
+#12   INDIRI4 count=1 #13
+#1   ASGNI4 count=0 #2 #12 4 4
+case3: SUBI4 2
+#3     44P count=1 5
+#2    INDIRI4 count=1 #3
+#5     44P count=1 6
+#4    INDIRI4 count=1 #5
+#1   SUBI4 count=1 #2 #4
+case3: INDIRI4 2
+#2    44P count=1 5
+#1   INDIRI4 count=1 #2
+case3: INDIRI4 2
+#2    44P count=1 6
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#5       44P count=1 5
+#4      INDIRI4 count=1 #5
+#7       44P count=1 7
+#6      INDIRI4 count=1 #7
+#3     LSHI4 count=1 #4 #6
+#8     ADDRGP4 count=1 rows
+#2    ADDP4 count=1 #3 #8
+#10    44P count=1 8
+#9    INDIRI4 count=1 #10
+#1   ASGNI4 count=0 #2 #9 4 4
+case3: INDIRI4 2
+#2    44P count=1 5
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#5       ADDRFP4 count=1 c
+#4      INDIRI4 count=1 #5
+#6      CNSTI4 count=1 2
+#3     LSHI4 count=1 #4 #6
+#7     ADDRGP4 count=1 x
+#2    ADDP4 count=1 #3 #7
+#9     ADDRLP4 count=1 r
+#8    INDIRI4 count=1 #9
+#1   ASGNI4 count=0 #2 #8 4 4
+case3: INDIRI4 2
+#2    ADDRFP4 count=1 c
+#1   INDIRI4 count=1 #2
+case3: INDIRI4 2
+#2    ADDRLP4 count=1 r
+#1   INDIRI4 count=1 #2
+case3: NEI4 1
+#3     ADDRFP4 count=1 c
+#2    INDIRI4 count=1 #3
+#4    CNSTI4 count=1 7
+#1   NEI4 count=0 #2 #4 25
+case3: CALLI4 2
+#2    ADDRGP4 count=1 print
+#1   CALLI4 count=0 #2 {int}
+case3: JUMPV 1
+#2    ADDRGP4 count=1 26
+#1   JUMPV count=0 #2
+case3: LABELV 1
+#1   LABELV count=0 25
+case3: ARGI4 1
+#4      ADDRFP4 count=1 c
+#3     INDIRI4 count=1 #4
+#5     CNSTI4 count=1 1
+#2    ADDI4 count=1 #3 #5
+#1   ARGI4 count=0 #2 4 4
+case3: ADDI4 2
+#3     ADDRFP4 count=1 c
+#2    INDIRI4 count=1 #3
+#4    CNSTI4 count=1 1
+#1   ADDI4 count=1 #2 #4
+case3: INDIRI4 2
+#2    ADDRFP4 count=1 c
+#1   INDIRI4 count=1 #2
+case3: CALLI4 2
+#2    ADDRGP4 count=1 queens
+#1   CALLI4 count=0 #2 {int}
+case3: LABELV 1
+#1   LABELV count=0 26
+case3: ASGNI4 1
+#2    44P count=1 9
+#4     ADDRLP4 count=1 r
+#3    INDIRI4 count=1 #4
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: INDIRI4 2
+#2    ADDRLP4 count=1 r
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#2    44P count=1 10
+#4     ADDRFP4 count=1 c
+#3    INDIRI4 count=1 #4
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: INDIRI4 2
+#2    ADDRFP4 count=1 c
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#2    44P count=1 11
+#3    CNSTI4 count=1 2
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: ASGNI4 1
+#2    44P count=1 12
+#3    CNSTI4 count=1 1
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: ASGNI4 1
+#6        44P count=1 9
+#5       INDIRI4 count=1 #6
+#8        44P count=1 10
+#7       INDIRI4 count=1 #8
+#4      ADDI4 count=1 #5 #7
+#10      44P count=1 11
+#9      INDIRI4 count=1 #10
+#3     LSHI4 count=1 #4 #9
+#11    ADDRGP4 count=1 down
+#2    ADDP4 count=1 #3 #11
+#13    44P count=1 12
+#12   INDIRI4 count=1 #13
+#1   ASGNI4 count=0 #2 #12 4 4
+case3: ADDI4 2
+#3     44P count=1 9
+#2    INDIRI4 count=1 #3
+#5     44P count=1 10
+#4    INDIRI4 count=1 #5
+#1   ADDI4 count=1 #2 #4
+case3: INDIRI4 2
+#2    44P count=1 9
+#1   INDIRI4 count=1 #2
+case3: INDIRI4 2
+#2    44P count=1 10
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#6        44P count=1 9
+#5       INDIRI4 count=1 #6
+#8        44P count=1 10
+#7       INDIRI4 count=1 #8
+#4      SUBI4 count=1 #5 #7
+#10      44P count=1 11
+#9      INDIRI4 count=1 #10
+#3     LSHI4 count=1 #4 #9
+#11    ADDRGP4 count=1 27
+#2    ADDP4 count=1 #3 #11
+#13    44P count=1 12
+#12   INDIRI4 count=1 #13
+#1   ASGNI4 count=0 #2 #12 4 4
+case3: SUBI4 2
+#3     44P count=1 9
+#2    INDIRI4 count=1 #3
+#5     44P count=1 10
+#4    INDIRI4 count=1 #5
+#1   SUBI4 count=1 #2 #4
+case3: INDIRI4 2
+#2    44P count=1 9
+#1   INDIRI4 count=1 #2
+case3: INDIRI4 2
+#2    44P count=1 10
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#5       44P count=1 9
+#4      INDIRI4 count=1 #5
+#7       44P count=1 11
+#6      INDIRI4 count=1 #7
+#3     LSHI4 count=1 #4 #6
+#8     ADDRGP4 count=1 rows
+#2    ADDP4 count=1 #3 #8
+#10    44P count=1 12
+#9    INDIRI4 count=1 #10
+#1   ASGNI4 count=0 #2 #9 4 4
+case3: INDIRI4 2
+#2    44P count=1 9
+#1   INDIRI4 count=1 #2
+case3: LABELV 1
+#1   LABELV count=0 21
+case3: LABELV 1
+#1   LABELV count=0 18
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 r
+#5      ADDRLP4 count=1 r
+#4     INDIRI4 count=1 #5
+#6     CNSTI4 count=1 1
+#3    ADDI4 count=1 #4 #6
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: LTI4 1
+#3     ADDRLP4 count=1 r
+#2    INDIRI4 count=1 #3
+#4    CNSTI4 count=1 8
+#1   LTI4 count=0 #2 #4 17
+case3: RETI4 1
+#3     ADDRLP4 count=1 r
+#2    INDIRI4 count=1 #3
+#1   RETI4 count=0 #2
+case3: INDIRI4 2
+#2    ADDRLP4 count=1 r
+#1   INDIRI4 count=1 #2
+case3: LABELV 1
+#1   LABELV count=0 16
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 k
+#3    CNSTI4 count=1 0
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: LABELV 1
+#1   LABELV count=0 30
+case3: ARGI4 1
+#7         ADDRLP4 count=1 k
+#6        INDIRI4 count=1 #7
+#8        CNSTI4 count=1 2
+#5       LSHI4 count=1 #6 #8
+#9       ADDRGP4 count=1 x
+#4      ADDP4 count=1 #5 #9
+#3     INDIRI4 count=1 #4
+#10    CNSTI4 count=1 49
+#2    ADDI4 count=1 #3 #10
+#1   ARGI4 count=0 #2 4 4
+case3: ADDI4 2
+#6        ADDRLP4 count=1 k
+#5       INDIRI4 count=1 #6
+#7       CNSTI4 count=1 2
+#4      LSHI4 count=1 #5 #7
+#8      ADDRGP4 count=1 x
+#3     ADDP4 count=1 #4 #8
+#2    INDIRI4 count=1 #3
+#9    CNSTI4 count=1 49
+#1   ADDI4 count=1 #2 #9
+case3: INDIRI4 2
+#5       ADDRLP4 count=1 k
+#4      INDIRI4 count=1 #5
+#6      CNSTI4 count=1 2
+#3     LSHI4 count=1 #4 #6
+#7     ADDRGP4 count=1 x
+#2    ADDP4 count=1 #3 #7
+#1   INDIRI4 count=1 #2
+case3: INDIRI4 2
+#2    ADDRLP4 count=1 k
+#1   INDIRI4 count=1 #2
+case3: ARGP4 1
+#2    ADDRGP4 count=1 34
+#1   ARGP4 count=0 #2 4 4
+case3: CALLI4 2
+#2    ADDRGP4 count=1 printf
+#1   CALLI4 count=0 #2 {int}
+case3: LABELV 1
+#1   LABELV count=0 31
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 k
+#5      ADDRLP4 count=1 k
+#4     INDIRI4 count=1 #5
+#6     CNSTI4 count=1 1
+#3    ADDI4 count=1 #4 #6
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: LTI4 1
+#3     ADDRLP4 count=1 k
+#2    INDIRI4 count=1 #3
+#4    CNSTI4 count=1 8
+#1   LTI4 count=0 #2 #4 30
+case3: ARGP4 1
+#2    ADDRGP4 count=1 35
+#1   ARGP4 count=0 #2 4 4
+case3: CALLI4 2
+#2    ADDRGP4 count=1 printf
+#1   CALLI4 count=0 #2 {int}
+case3: RETI4 1
+#2    CNSTI4 count=1 0
+#1   RETI4 count=0 #2
+case3: CNSTI4 2
+#1   CNSTI4 count=1 0
+case3: LABELV 1
+#1   LABELV count=0 29
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 i
+#3    CNSTI4 count=1 35
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 v
+#3    CNSTI4 count=1 21
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: ARGB 1
+#3     ADDRLP4 count=1 v
+#2    INDIRB count=1 #3
+#1   ARGB count=0 #2 16 4
+case3: ADDRLP4 2
+#1   ADDRLP4 count=1 v
+case3: CALLI4 2
+#2    ADDRGP4 count=1 print_vector
+#1   CALLI4 count=0 #2 {int}
+case3: LTI4 1
+#3     ADDRLP4 count=1 i
+#2    INDIRI4 count=1 #3
+#4    CNSTI4 count=1 1
+#1   LTI4 count=0 #2 #4 40
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 39
+#3    CNSTI4 count=1 0
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: JUMPV 1
+#2    ADDRGP4 count=1 41
+#1   JUMPV count=0 #2
+case3: LABELV 1
+#1   LABELV count=0 40
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 39
+#3    CNSTI4 count=1 1
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: LABELV 1
+#1   LABELV count=0 41
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 38
+#4     ADDRLP4 count=1 39
+#3    INDIRI4 count=1 #4
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: INDIRI4 2
+#2    ADDRLP4 count=1 39
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 i
+#3    CNSTI4 count=1 0
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: LABELV 1
+#1   LABELV count=0 42
+case3: ASGNI4 1
+#2    44P count=1 1
+#5      ADDRLP4 count=1 i
+#4     INDIRI4 count=1 #5
+#6     CNSTI4 count=1 2
+#3    LSHI4 count=1 #4 #6
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: LSHI4 2
+#3     ADDRLP4 count=1 i
+#2    INDIRI4 count=1 #3
+#4    CNSTI4 count=1 2
+#1   LSHI4 count=1 #2 #4
+case3: INDIRI4 2
+#2    ADDRLP4 count=1 i
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#2    44P count=1 2
+#3    CNSTI4 count=1 1
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: ASGNI4 1
+#4      44P count=1 1
+#3     INDIRI4 count=1 #4
+#5     ADDRGP4 count=1 down
+#2    ADDP4 count=1 #3 #5
+#7     44P count=1 2
+#6    INDIRI4 count=1 #7
+#1   ASGNI4 count=0 #2 #6 4 4
+case3: INDIRI4 2
+#2    44P count=1 1
+#1   INDIRI4 count=1 #2
+case3: ASGNI4 1
+#4      44P count=1 1
+#3     INDIRI4 count=1 #4
+#5     ADDRGP4 count=1 up
+#2    ADDP4 count=1 #3 #5
+#7     44P count=1 2
+#6    INDIRI4 count=1 #7
+#1   ASGNI4 count=0 #2 #6 4 4
+case3: INDIRI4 2
+#2    44P count=1 1
+#1   INDIRI4 count=1 #2
+case3: LABELV 1
+#1   LABELV count=0 43
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 i
+#5      ADDRLP4 count=1 i
+#4     INDIRI4 count=1 #5
+#6     CNSTI4 count=1 1
+#3    ADDI4 count=1 #4 #6
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: LTI4 1
+#3     ADDRLP4 count=1 i
+#2    INDIRI4 count=1 #3
+#4    CNSTI4 count=1 15
+#1   LTI4 count=0 #2 #4 42
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 i
+#3    CNSTI4 count=1 0
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: LABELV 1
+#1   LABELV count=0 46
+case3: ASGNI4 1
+#5       ADDRLP4 count=1 i
+#4      INDIRI4 count=1 #5
+#6      CNSTI4 count=1 2
+#3     LSHI4 count=1 #4 #6
+#7     ADDRGP4 count=1 rows
+#2    ADDP4 count=1 #3 #7
+#8    CNSTI4 count=1 1
+#1   ASGNI4 count=0 #2 #8 4 4
+case3: INDIRI4 2
+#2    ADDRLP4 count=1 i
+#1   INDIRI4 count=1 #2
+case3: LABELV 1
+#1   LABELV count=0 47
+case3: ASGNI4 1
+#2    ADDRLP4 count=1 i
+#5      ADDRLP4 count=1 i
+#4     INDIRI4 count=1 #5
+#6     CNSTI4 count=1 1
+#3    ADDI4 count=1 #4 #6
+#1   ASGNI4 count=0 #2 #3 4 4
+case3: LTI4 1
+#3     ADDRLP4 count=1 i
+#2    INDIRI4 count=1 #3
+#4    CNSTI4 count=1 8
+#1   LTI4 count=0 #2 #4 46
+case3: ARGI4 1
+#2    CNSTI4 count=1 0
+#1   ARGI4 count=0 #2 4 4
+case3: CALLI4 2
+#2    ADDRGP4 count=1 queens
+#1   CALLI4 count=0 #2 {int}
+case3: RETI4 1
+#2    CNSTI4 count=1 0
+#1   RETI4 count=0 #2
+case3: CNSTI4 2
+#1   CNSTI4 count=1 0
+case3: LABELV 1
+#1   LABELV count=0 37
